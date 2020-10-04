@@ -17,11 +17,14 @@ log.trace('this will not be printed since the default loglevel is info')
 
 ```js
 const log = require('loggis')
-  .configure({ loglevel: 'trace' })
+  .configure({ loglevel: 'debug' })
   .getLogger('MY_APP');
 
-log.debug('easy to debug');
-// [2020-10-04T09:10:42.276Z] [DEBUG] [16959] [MY_APP] my app debug message
+log.error('easy to log error')
+log.debug('easy to log debug');
+log.trace('not easy to trace, since the log level is DEBUG');
+// [2020-10-04T09:10:42.276Z] [ERROR] [16959] [MY_APP] easy to log error
+// [2020-10-04T09:10:42.276Z] [DEBUG] [16959] [MY_APP] easy to log debug
 ```
 
 ```js
