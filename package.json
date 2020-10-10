@@ -1,12 +1,13 @@
 {
   "name": "loggis",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A simple and lightweight logger",
-  "main": "index.js",
+  "main": "src/index.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
+    "lint": "eslint src",
     "test": "jest",
     "test:coverage": "jest --coverage"
   },
@@ -37,7 +38,14 @@
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^24.0.2",
+    "husky": "^4.3.0",
     "jest": "^26.4.2",
     "jest-each": "^26.4.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "pre-push": "npm run test"
+    }
   }
 }

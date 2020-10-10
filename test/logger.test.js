@@ -1,7 +1,9 @@
 const each = require('jest-each').default;
-const { configure } = require('../src/logger');
+const { configure } = require('../src');
 
 const methods = ['error', 'warn', 'info', 'debug', 'trace'];
+
+const print = jest.spyOn(console, 'log').mockImplementation();
 
 describe('# Utils - Logger', () => {
   it('should return getLogger', () => {
@@ -20,12 +22,10 @@ describe('# Utils - Logger', () => {
   });
 
   it('should log', () => {
-    const spy = jest.spyOn(console, 'log').mockImplementation();
     const log = configure({ loglevel: 'trace' }).getLogger();
     methods.forEach((method) => log[method]('a'));
 
-    expect(spy).toBeCalledTimes(methods.length);
-    spy.mockRestore();
+    expect(print).toBeCalledTimes(methods.length);
   });
 
   each([
@@ -36,17 +36,13 @@ describe('# Utils - Logger', () => {
     ['trace', 5],
   ])
     .it('should filter output depending on loglevel', (loglevel, callsCount) => {
-      const spy = jest.spyOn(console, 'log').mockImplementation();
       const log = configure({ loglevel }).getLogger();
       methods.forEach((method) => log[method]('a'));
 
-      // eslint-disable-next-line jest/no-standalone-expect
-      expect(spy).toBeCalledTimes(callsCount);
-      spy.mockRestore();
+      expect(print).toBeCalledTimes(callsCount);
     });
 
   it('should accept multiple arguments of any types', () => {
-    const spy = jest.spyOn(console, 'log').mockImplementation();
     const log = configure({}).getLogger();
     const args = [
       { toJSON: () => { throw new Error('OOPS!!!'); } },
@@ -62,8 +58,6 @@ describe('# Utils - Logger', () => {
     ];
 
     expect(() => log.error(...args)).not.toThrow();
-    expect(spy).toBeCalledTimes(1);
-    spy.mockRestore();
   });
 
   it('should throw if unknown loglevel is passed', () => {
