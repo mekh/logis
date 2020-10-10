@@ -16,7 +16,7 @@ const getLogger = (category) => {
 };
 
 /**
- * Get an existing logger
+ * Add a new logger
  * @param {string} category - category name
  * @param {object} logger - logger instance
  * @return {void}
