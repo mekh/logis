@@ -1,10 +1,27 @@
 const Logger = require('./logger/logger');
+const storage = require('./utils/storage');
+const configure = require('./config/configure');
 
-const logger = new Logger();
+const config = (logger, options) => {
+  configure(options);
+  return logger;
+};
 
-logger.getLogger = Logger.getLogger;
-logger.configure = Logger.configure;
+const getLogger = (category) => {
+  const stored = storage.getLogger(category);
+  if (stored) {
+    return stored;
+  }
 
-logger.default = logger;
+  const newLogger = new Logger();
+  newLogger.getLogger = getLogger;
+  newLogger.configure = config.bind(null, newLogger);
 
-module.exports = logger;
+  if (category) {
+    storage.addLogger(category, newLogger);
+  }
+
+  return newLogger;
+};
+
+module.exports = getLogger();

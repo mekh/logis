@@ -1,48 +1,12 @@
 const config = require('../config');
 const serialize = require('../utils/serialize');
-const errors = require('./errors');
-const { levels, logLevels, colors } = require('./levels');
-
-const loggers = {};
+const errors = require('../common/errors');
+const { levels, logLevels, colors } = require('../common/levels');
 
 /**
  * Logger
  */
 class Logger {
-  /**
-   * Get an existing logger or create and store a new one
-   * @param {string} [category] - category name
-   * @return {Logger}
-   */
-  static getLogger(category) {
-    if (!category) {
-      return new Logger();
-    }
-
-    if (!['symbol', 'string'].includes(typeof category)) {
-      throw errors.invalidCategory;
-    }
-
-    return loggers[category] ? loggers[category] : new Logger(category);
-  }
-
-  /**
-   * Set the default configuration for all loggers
-   * @param {string} loglevel - default loglevel
-   * @param {boolean} colorize - whether to colorize the output or not
-   * @return {Logger}
-   */
-  static configure({ loglevel, colorize = false } = {}) {
-    if (loglevel && !Object.keys(levels).includes(loglevel.toLowerCase())) {
-      throw errors.invalidLogLevel;
-    }
-
-    config.defaultLogLevel = loglevel;
-    config.useColors = colorize;
-
-    return Logger;
-  }
-
   /**
    * Constructor
    * @param {string} [category] - category name
@@ -55,10 +19,6 @@ class Logger {
     this.useColors = null;
 
     this.assertLogLevel(this.level);
-
-    if (category && !loggers[category]) {
-      loggers[category] = this;
-    }
   }
 
   /**
