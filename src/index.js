@@ -2,11 +2,22 @@ const Logger = require('./logger/logger');
 const storage = require('./utils/storage');
 const configure = require('./config/configure');
 
+/**
+ * Change the global configuration
+ * @param {Logger} logger
+ * @param {object} options
+ * @return {Logger}
+ */
 const config = (logger, options) => {
   configure(options);
   return logger;
 };
 
+/**
+ * Get a stored or a new logger
+ * @param {string} [category]
+ * @return {Logger}
+ */
 const getLogger = (category) => {
   const stored = storage.getLogger(category);
   if (stored) {
