@@ -116,7 +116,7 @@ class Logger {
    * Format a message
    * @param {string} message
    * @param {string} loglevel
-   * @return {*|string}
+   * @return {string}
    */
   format(message, loglevel) {
     const prefix = this.buildPrefix(loglevel);
