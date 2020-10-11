@@ -9,6 +9,12 @@ declare interface logLevels {
     trace: 4,
 }
 
+declare interface format {
+    message: string,
+    level: string,
+    logger: Logger,
+}
+
 declare type logLevelString = keyof logLevels;
 
 /**
@@ -31,6 +37,10 @@ declare class Logger {
      * Get log level
      */
     get level(): logLevelString;
+    /**
+     * Format a message
+     */
+    format(params: format): string;
     /**
      * General logging function
      */

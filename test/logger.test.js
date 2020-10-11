@@ -5,7 +5,7 @@ const methods = ['error', 'warn', 'info', 'debug', 'trace'];
 
 const print = jest.spyOn(console, 'log').mockImplementation();
 
-describe('# Utils - Logger', () => {
+describe('# Logger', () => {
   it('should return getLogger', () => {
     const log = configure({});
     expect(log).toHaveProperty('getLogger');

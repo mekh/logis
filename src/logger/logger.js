@@ -1,7 +1,10 @@
+/* eslint-disable class-methods-use-this */
 const config = require('../config');
 const serialize = require('../utils/serialize');
 const errors = require('../common/errors');
-const { levels, logLevels, colors } = require('../common/levels');
+const { assertLogLevel, isValidLevel } = require('./loglevel');
+const { format } = require('./format');
+const { levels, logLevels } = require('../common/levels');
 
 /**
  * Logger
@@ -18,7 +21,9 @@ class Logger {
     this.loglevel = loglevel;
     this.useColors = null;
 
-    this.assertLogLevel(this.level);
+    this.format = format;
+
+    assertLogLevel(this.level);
   }
 
   /**
@@ -34,7 +39,7 @@ class Logger {
    * @param {string} loglevel
    */
   set level(loglevel) {
-    this.assertLogLevel(loglevel);
+    assertLogLevel(loglevel);
     this.loglevel = loglevel.toLowerCase();
   }
 
@@ -59,34 +64,6 @@ class Logger {
   }
 
   /**
-   * Check if a log level exists in the levels list
-   * @param loglevel
-   * @return {boolean}
-   */
-  hasLevel(loglevel) {
-    return Object.keys(this.levels).includes(loglevel.toLowerCase());
-  }
-
-  /**
-   * Check if a given log level is valid
-   * @param {string} loglevel
-   * @return {boolean}
-   */
-  isValidLevel(loglevel) {
-    return typeof loglevel === 'string' && this.hasLevel(loglevel);
-  }
-
-  /**
-   * Check if a log level is valid, throw TypeError if it isn't
-   * @param {string} loglevel
-   */
-  assertLogLevel(loglevel) {
-    if (!this.isValidLevel(loglevel)) {
-      throw errors.invalidLogLevel;
-    }
-  }
-
-  /**
    * Return true if message level is less or equal to the logger's one
    * @param {string} loglevel - message log level
    * @return {boolean}
@@ -99,49 +76,22 @@ class Logger {
   }
 
   /**
-   * Build a log prefix
-   * @param {string} loglevel
-   * @return {string}
-   */
-  buildPrefix(loglevel) {
-    const timestamp = `[${new Date().toISOString()}]`;
-    const logLevel = this.isValidLevel(loglevel) ? `[${loglevel.toUpperCase()}]` : '';
-    const pid = process.pid ? `[${process.pid}]` : '';
-    const category = this.category ? `[${this.category}]` : '';
-
-    return [timestamp, logLevel, pid, category].filter(Boolean).join(' ');
-  }
-
-  /**
-   * Format a message
-   * @param {string} message
-   * @param {string} loglevel
-   * @return {string}
-   */
-  format(message, loglevel) {
-    const prefix = this.buildPrefix(loglevel);
-    const text = `${prefix} ${message}`;
-
-    return this.colorize && this.isValidLevel(loglevel) ? colors[loglevel](text) : text;
-  }
-
-  /**
    * Print out a message
    * @param {string} level
    * @param {any} args
    */
   log(level, ...args) {
-    const isValidLevel = this.isValidLevel(level);
-    if (isValidLevel && !this.shouldLog(level)) {
+    const isValid = isValidLevel(level);
+    if (isValid && !this.shouldLog(level)) {
       return;
     }
 
-    if (!isValidLevel) {
+    if (!isValid) {
       args.unshift(level);
     }
 
     const message = args.map(serialize).join(' ');
-    const text = this.format(message, level);
+    const text = this.format({ message, level, logger: this });
 
     console.log(text);
   }
