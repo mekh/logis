@@ -1,6 +1,6 @@
-const config = require('../config');
 const serialize = require('../utils/serialize');
 const errors = require('../common/errors');
+const { config } = require('../config');
 const { colors } = require('../common/levels');
 const { assertLogLevel, isValidLevel } = require('./loglevel');
 const { levels, logLevels } = require('../common/levels');

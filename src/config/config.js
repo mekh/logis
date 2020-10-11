@@ -1,9 +1,11 @@
+const errors = require('../common/errors');
+const { levels } = require('../common/levels');
 const { format } = require('../logger/format');
 
 let loglevel;
 let colorize;
 
-module.exports = {
+const config = {
   get defaultLogLevel() {
     return loglevel || process.env.LOG_LEVEL || 'info';
   },
@@ -11,18 +13,22 @@ module.exports = {
     return colorize || process.env.LOG_COLORS === 'true';
   },
   set defaultLogLevel(value) {
-    if (!value) {
-      return;
+    if (loglevel && !Object.keys(levels).includes(loglevel.toLowerCase())) {
+      throw errors.invalidLogLevel;
     }
 
     loglevel = value;
   },
   set useColors(value) {
     if (typeof value !== 'boolean') {
-      return;
+      throw errors.invalidTypeBool;
     }
 
     colorize = value;
   },
   format,
+};
+
+module.exports = {
+  config,
 };

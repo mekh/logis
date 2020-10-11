@@ -1,6 +1,6 @@
 const Logger = require('./logger/logger');
 const storage = require('./utils/storage');
-const configure = require('./config/configure');
+const { configure } = require('./config');
 
 /**
  * Change the global configuration

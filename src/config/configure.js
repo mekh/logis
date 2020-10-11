@@ -1,6 +1,4 @@
-const config = require('./config');
-const errors = require('../common/errors');
-const { levels } = require('../common/levels');
+const { config } = require('./config');
 const { format: formatter } = require('../logger/format');
 
 /**
@@ -11,14 +9,6 @@ const { format: formatter } = require('../logger/format');
  * @return {Logger}
  */
 const configure = ({ loglevel, colorize = false, format = formatter } = {}) => {
-  if (loglevel && !Object.keys(levels).includes(loglevel.toLowerCase())) {
-    throw errors.invalidLogLevel;
-  }
-
-  if (typeof colorize !== 'boolean') {
-    throw errors.invalidTypeBool;
-  }
-
   config.defaultLogLevel = loglevel;
   config.useColors = colorize;
   config.format = format;
