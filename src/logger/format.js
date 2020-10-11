@@ -1,4 +1,3 @@
-const { colors } = require('../common/levels');
 const { isValidLevel } = require('./loglevel');
 
 /**
@@ -25,9 +24,7 @@ const buildPrefix = ({ logger, level }) => {
  */
 const format = ({ message, logger, level }) => {
   const prefix = buildPrefix({ logger, level });
-  const text = `${prefix} ${message}`;
-
-  return logger.colorize && isValidLevel(level) ? colors[level](text) : text;
+  return `${prefix} ${message}`;
 };
 
 module.exports = {

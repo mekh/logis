@@ -1,9 +1,8 @@
-/* eslint-disable class-methods-use-this */
 const config = require('../config');
 const serialize = require('../utils/serialize');
 const errors = require('../common/errors');
+const { colors } = require('../common/levels');
 const { assertLogLevel, isValidLevel } = require('./loglevel');
-const { format } = require('./format');
 const { levels, logLevels } = require('../common/levels');
 
 /**
@@ -21,7 +20,7 @@ class Logger {
     this.loglevel = loglevel;
     this.useColors = null;
 
-    this.format = format;
+    this.format = config.format;
 
     assertLogLevel(this.level);
   }
@@ -92,8 +91,9 @@ class Logger {
 
     const message = args.map(serialize).join(' ');
     const text = this.format({ message, level, logger: this });
+    const output = this.colorize && isValidLevel(level) ? colors[level](text) : text;
 
-    console.log(text);
+    console.log(output);
   }
 
   /**

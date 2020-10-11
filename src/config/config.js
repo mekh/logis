@@ -1,3 +1,5 @@
+const { format } = require('../logger/format');
+
 let loglevel;
 let colorize;
 
@@ -22,4 +24,5 @@ module.exports = {
 
     colorize = value;
   },
+  format,
 };

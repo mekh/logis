@@ -74,6 +74,7 @@ declare namespace loggis {
     interface configure {
         loglevel?: keyof logLevels,
         colorize?: boolean,
+        format?: (params: format) => string,
     }
 
     interface logger extends Logger {
