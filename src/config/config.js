@@ -13,7 +13,7 @@ const config = {
     return colorize || process.env.LOG_COLORS === 'true';
   },
   set defaultLogLevel(value) {
-    if (loglevel && !Object.keys(levels).includes(loglevel.toLowerCase())) {
+    if (value && !Object.keys(levels).includes(value.toLowerCase())) {
       throw errors.invalidLogLevel;
     }
 

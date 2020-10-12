@@ -1,5 +1,5 @@
 const each = require('jest-each').default;
-const { configure } = require('../src');
+const logger = require('../src');
 
 const methods = ['error', 'warn', 'info', 'debug', 'trace'];
 
@@ -7,13 +7,12 @@ const print = jest.spyOn(console, 'log').mockImplementation();
 
 describe('# Logger', () => {
   it('should return getLogger', () => {
-    const log = configure({});
-    expect(log).toHaveProperty('getLogger');
-    expect(log.getLogger).toBeInstanceOf(Function);
+    expect(logger).toHaveProperty('getLogger');
+    expect(logger.getLogger).toBeInstanceOf(Function);
   });
 
   it('should return a logger', () => {
-    const log = configure().getLogger();
+    const log = logger.configure().getLogger();
 
     methods.forEach((method) => {
       expect(log).toHaveProperty(method);
@@ -22,7 +21,7 @@ describe('# Logger', () => {
   });
 
   it('should log', () => {
-    const log = configure({ loglevel: 'trace' }).getLogger();
+    const log = logger.configure({ loglevel: 'trace' });
     methods.forEach((method) => log[method]('a'));
 
     expect(print).toBeCalledTimes(methods.length);
@@ -36,14 +35,13 @@ describe('# Logger', () => {
     ['trace', 5],
   ])
     .it('should filter output depending on loglevel', (loglevel, callsCount) => {
-      const log = configure({ loglevel }).getLogger();
+      const log = logger.configure({ loglevel });
       methods.forEach((method) => log[method]('a'));
 
       expect(print).toBeCalledTimes(callsCount);
     });
 
   it('should accept multiple arguments of any types', () => {
-    const log = configure({}).getLogger();
     const args = [
       { toJSON: () => { throw new Error('OOPS!!!'); } },
       1,
@@ -57,10 +55,10 @@ describe('# Logger', () => {
       { a: 1 },
     ];
 
-    expect(() => log.error(...args)).not.toThrow();
+    expect(() => logger.error(...args)).not.toThrow();
   });
 
   it('should throw if unknown loglevel is passed', () => {
-    expect(() => configure({ loglevel: 'UNKNOWN' })).toThrow();
+    expect(() => logger.configure({ loglevel: 'UNKNOWN' })).toThrow();
   });
 });
