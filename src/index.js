@@ -24,7 +24,7 @@ const getLogger = (category) => {
     return stored;
   }
 
-  const newLogger = new Logger();
+  const newLogger = new Logger(category);
   newLogger.getLogger = getLogger;
   newLogger.configure = config.bind(null, newLogger);
 
