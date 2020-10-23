@@ -6,6 +6,7 @@ let loglevel;
 let colorize;
 
 const config = {
+  storageLimit: 100,
   get defaultLogLevel() {
     return loglevel || process.env.LOG_LEVEL || 'info';
   },

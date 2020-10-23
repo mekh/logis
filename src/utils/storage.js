@@ -1,6 +1,14 @@
 const errors = require('../common/errors');
+const { config } = require('../config');
 
-const loggers = {};
+const loggers = [];
+
+/**
+ * Find logger
+ * @param {string} category - category name
+ * @return {*}
+ */
+const findLogger = category => loggers.find(logger => logger.category === category);
 
 /**
  * Get an existing logger
@@ -12,7 +20,7 @@ const getLogger = (category) => {
     return null;
   }
 
-  return loggers[category];
+  return findLogger(category);
 };
 
 /**
@@ -26,11 +34,15 @@ const addLogger = (category, logger) => {
     throw errors.invalidCategory;
   }
 
-  if (loggers[category]) {
+  if (findLogger(category)) {
     return;
   }
 
-  loggers[category] = logger;
+  if (loggers.length >= config.storageLimit) {
+    loggers.shift();
+  }
+
+  loggers.push(logger);
 };
 
 module.exports = {
