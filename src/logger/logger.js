@@ -1,4 +1,3 @@
-const serialize = require('../utils/serialize');
 const errors = require('../common/errors');
 const { config } = require('../config');
 const { colors } = require('../common/levels');
@@ -6,13 +5,13 @@ const { assertLogLevel, isValidLevel } = require('./loglevel');
 const { levels, logLevels } = require('../common/levels');
 
 /**
- * Logger
+ * @class Logger
  */
 class Logger {
   /**
-   * Constructor
+   * @constructor
    * @param {string} [category] - category name
-   * @param {string} [loglevel] - logging level
+   * @param {logLevelString} [loglevel] - logging level
    */
   constructor(category = '', loglevel) {
     this.category = category;
@@ -23,11 +22,13 @@ class Logger {
     this.format = config.format;
 
     assertLogLevel(this.level);
+
+    this.setupLoggers();
   }
 
   /**
    * The the log level
-   * @return {string}
+   * @return {logLevelString}
    */
   get level() {
     return (this.loglevel || config.defaultLogLevel).toLowerCase();
@@ -35,7 +36,8 @@ class Logger {
 
   /**
    * Set the log level
-   * @param {string} loglevel
+   * @param {logLevelString} loglevel
+   * @return {void}
    */
   set level(loglevel) {
     assertLogLevel(loglevel);
@@ -53,6 +55,7 @@ class Logger {
   /**
    * Colorize setter
    * @param {boolean} value
+   * @return {void}
    */
   set colorize(value) {
     if (typeof value !== 'boolean') {
@@ -63,11 +66,26 @@ class Logger {
   }
 
   /**
+   * Setup per-level loggers
+   * @private
+   */
+  setupLoggers() {
+    this.error = this.log.bind(this, levels.error);
+    this.warn = this.log.bind(this, levels.warn);
+    this.info = this.log.bind(this, levels.info);
+    this.debug = this.log.bind(this, levels.debug);
+    this.trace = this.log.bind(this, levels.trace);
+  }
+
+  /**
    * Return true if message level is less or equal to the logger's one
-   * @param {string} loglevel - message log level
+   * @param {logLevelString} loglevel - message log level
    * @return {boolean}
+   * @private
    */
   shouldLog(loglevel) {
+    assertLogLevel(loglevel);
+
     const messageLevel = this.levels[loglevel.toLowerCase()];
     const loggerLevel = this.levels[this.level];
 
@@ -76,8 +94,10 @@ class Logger {
 
   /**
    * Print out a message
-   * @param {string} level
-   * @param {any} args
+   * @param {logLevelString|any} [level]
+   * @param {any[]} args
+   * @return {void}
+   * @private
    */
   log(level, ...args) {
     const isValid = isValidLevel(level);
@@ -89,51 +109,10 @@ class Logger {
       args.unshift(level);
     }
 
-    const message = args.map(serialize).join(' ');
-    const text = this.format({ message, level, logger: this });
-    const output = this.colorize && isValidLevel(level) ? colors[level](text) : text;
+    const text = this.format({ args, level, logger: this });
+    const output = this.colorize && isValidLevel(level) ? colors[level.toLowerCase()](text) : text;
 
     console.log(output);
-  }
-
-  /**
-   * Log an error message
-   * @param {any} args
-   */
-  error(...args) {
-    this.log.call(this, levels.error, ...args);
-  }
-
-  /**
-   * Log a warning message
-   * @param {any} args
-   */
-  warn(...args) {
-    this.log.call(this, levels.warn, ...args);
-  }
-
-  /**
-   * Log an info message
-   * @param {any} args
-   */
-  info(...args) {
-    this.log.call(this, levels.info, ...args);
-  }
-
-  /**
-   * Log a debug message
-   * @param {any} args
-   */
-  debug(...args) {
-    this.log.call(this, levels.debug, ...args);
-  }
-
-  /**
-   * Log a trace message
-   * @param {any} args
-   */
-  trace(...args) {
-    this.log.call(this, levels.trace, ...args);
   }
 }
 

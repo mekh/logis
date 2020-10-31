@@ -9,13 +9,15 @@ declare interface logLevels {
     trace: 4,
 }
 
+declare type logLevelString = keyof logLevels;
+
 declare interface format {
-    message: string,
-    level: string,
-    logger: Logger,
+    args: any[],
+    logger?: Logger,
+    level?: logLevelString,
 }
 
-declare type logLevelString = keyof logLevels;
+declare type formatFn = (params: format) => string;
 
 /**
  * Logger
@@ -38,13 +40,17 @@ declare class Logger {
      */
     get level(): logLevelString;
     /**
-     * Format a message
+     * Set message formatter
      */
-    format(params: format): string;
+    set format(params: formatFn);
+    /**
+     * Returns the formatter function
+     */
+    get format(): formatFn;
     /**
      * General logging function
      */
-    log(level?: logLevelString, ...args: any[]): void
+    protected log(level?: logLevelString | any, ...args: any[]): void
     /**
      * Output error message
      */
@@ -72,7 +78,7 @@ declare namespace loggis {
      * Global configuration
      */
     interface configure {
-        loglevel?: keyof logLevels,
+        loglevel?: logLevelString,
         colorize?: boolean,
         format?: (params: format) => string,
     }

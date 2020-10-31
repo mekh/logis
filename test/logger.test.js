@@ -1,12 +1,13 @@
 const each = require('jest-each').default;
 const logger = require('../src');
 
-const methods = ['error', 'warn', 'info', 'debug', 'trace'];
+const methods = Object.keys(logger.levels);
 
 const print = jest.spyOn(console, 'log').mockImplementation();
 
 describe('# Logger', () => {
   it('should return getLogger', () => {
+    console.log(Object.keys(logger.levels).map((key, idx) => [key, idx + 1]));
     expect(logger).toHaveProperty('getLogger');
     expect(logger.getLogger).toBeInstanceOf(Function);
   });
@@ -27,13 +28,7 @@ describe('# Logger', () => {
     expect(print).toBeCalledTimes(methods.length);
   });
 
-  each([
-    ['error', 1],
-    ['warn', 2],
-    ['info', 3],
-    ['debug', 4],
-    ['trace', 5],
-  ])
+  each(methods.map((key, idx) => [key, idx + 1]))
     .it('should filter output depending on loglevel', (loglevel, callsCount) => {
       const log = logger.configure({ loglevel });
       methods.forEach((method) => log[method]('a'));

@@ -1,15 +1,16 @@
 const { isValidLevel } = require('./loglevel');
+const serialize = require('../utils/serialize');
 
 /**
  * Build a log prefix
- * @param {string} level
  * @param {Logger} logger
+ * @param {logLevelString} [level]
  * @return {string}
  */
 const buildPrefix = ({ logger, level }) => {
   const timestamp = `[${new Date().toISOString()}]`;
   const logLevel = isValidLevel(level) ? `[${level.toUpperCase()}]` : '';
-  const pid = process.pid ? `[${process.pid}]` : '';
+  const pid = `[${process.pid}]`;
   const name = logger.category ? `[${logger.category}]` : '';
 
   return [timestamp, logLevel, pid, name].filter(Boolean).join(' ');
@@ -17,12 +18,13 @@ const buildPrefix = ({ logger, level }) => {
 
 /**
  * Format a message
- * @param {string} message
- * @param {string} level
- * @param {Logger} logger
+ * @param {any[]} args - arguments that have been passed to logger function, e.g. log.info(...args)
+ * @param {Logger} logger - the logger instance
+ * @param {logLevelString} [level] - message level; e.g. for log.debug it will be 'debug'
  * @return {string}
  */
-const format = ({ message, logger, level }) => {
+const format = ({ args, logger, level }) => {
+  const message = args.map(serialize).join(' ');
   const prefix = buildPrefix({ logger, level });
   return `${prefix} ${message}`;
 };

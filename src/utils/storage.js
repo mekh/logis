@@ -6,7 +6,7 @@ const loggers = [];
 /**
  * Find logger
  * @param {string} category - category name
- * @return {*}
+ * @return {Logger|undefined}
  */
 const findLogger = category => loggers.find(logger => logger.category === category);
 
