@@ -1,4 +1,4 @@
-# loggis
+# loggis [![build](https://travis-ci.org/mekh/logis.svg?branch=main)](https://travis-ci.org/github/mekh/logis)
 A simple and lightweight logger for Node.JS
 
 #Install

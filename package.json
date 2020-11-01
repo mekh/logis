@@ -7,14 +7,15 @@
   "directories": {
     "test": "test"
   },
-  "engines" : {
-    "node" : ">=10.0.0",
+  "engines": {
+    "node": ">=10.0.0",
     "npm": ">=6.0.0"
   },
   "scripts": {
     "lint": "eslint src",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
@@ -40,6 +41,7 @@
   "homepage": "https://github.com/mekh/logis#readme",
   "devDependencies": {
     "@jest/console": "^26.6.1",
+    "coveralls": "^3.1.0",
     "eslint": "^7.10.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.1",

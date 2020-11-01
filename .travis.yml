@@ -8,4 +8,4 @@ node_js:
   - '12'
   - '10'
 after_success:
-  - npm run test:coverage
+  - npm run coveralls
