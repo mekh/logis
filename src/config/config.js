@@ -2,6 +2,8 @@ const errors = require('../common/errors');
 const { assertLogLevel } = require('../logger/loglevel');
 const { format } = require('../logger/format');
 
+const defaultLogLevel = 'info';
+
 let loglevel;
 let colorize;
 
@@ -15,7 +17,11 @@ const config = {
    * @return {logLevelString}
    */
   get defaultLogLevel() {
-    return loglevel || process.env.LOG_LEVEL || 'info';
+    const { LOG_LEVEL = '' } = process.env;
+
+    return loglevel
+        || LOG_LEVEL.toLowerCase()
+        || defaultLogLevel;
   },
   /**
    * The default log level
@@ -29,13 +35,9 @@ const config = {
    * @param {logLevelString} level
    */
   set defaultLogLevel(level) {
-    if (!level) {
-      return;
-    }
-
     assertLogLevel(level);
 
-    loglevel = level;
+    loglevel = level.toLowerCase();
   },
   /**
    * Use colorized output for all loggers if true

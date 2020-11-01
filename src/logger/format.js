@@ -11,7 +11,7 @@ const buildPrefix = ({ logger, level }) => {
   const timestamp = `[${new Date().toISOString()}]`;
   const logLevel = isValidLevel(level) ? `[${level.toUpperCase()}]` : '';
   const pid = `[${process.pid}]`;
-  const name = logger.category ? `[${logger.category}]` : '';
+  const name = logger.category ? `[${logger.category}]` : '[default]';
 
   return [timestamp, logLevel, pid, name].filter(Boolean).join(' ');
 };

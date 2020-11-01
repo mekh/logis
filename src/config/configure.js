@@ -8,7 +8,7 @@ const { format: formatter } = require('../logger/format');
  * @param {function({args: any[], logger?: Logger, level?: logLevelString}): string} format - default formatter
  * @return {Logger}
  */
-const configure = ({ loglevel, colorize = false, format = formatter } = {}) => {
+const configure = ({ loglevel, colorize = false, format = formatter }) => {
   config.defaultLogLevel = loglevel;
   config.useColors = colorize;
   config.format = format;
