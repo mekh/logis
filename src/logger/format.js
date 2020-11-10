@@ -8,7 +8,7 @@ const serialize = require('../utils/serialize');
  * @return {string}
  */
 const buildPrefix = ({ logger, level }) => {
-  const timestamp = `[${new Date().toISOString()}]`;
+  const timestamp = logger.timestamp ? `[${new Date().toISOString()}]` : '';
   const logLevel = isValidLevel(level) ? `[${level.toUpperCase()}]` : '';
   const pid = `[${process.pid}]`;
   const name = logger.category ? `[${logger.category}]` : '[default]';

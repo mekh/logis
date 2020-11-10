@@ -6,6 +6,7 @@ const defaultLogLevel = 'info';
 
 let loglevel;
 let colorize;
+let timestamp;
 
 const config = {
   /**
@@ -29,6 +30,29 @@ const config = {
    */
   get useColors() {
     return colorize || process.env.LOG_COLORS === 'true';
+  },
+  /**
+   * Get the default timestamp setting
+   * @returns {boolean}
+   */
+  get timestamp() {
+    const { LOG_TIMESTAMP = 'true' } = process.env;
+    if (LOG_TIMESTAMP === 'false') {
+      return false;
+    }
+
+    return timestamp !== undefined ? timestamp : LOG_TIMESTAMP === 'true';
+  },
+  /**
+   * Set false to exclude the timestamp from the log output
+   * @param value
+   */
+  set timestamp(value) {
+    if (typeof value !== 'boolean') {
+      throw errors.invalidTypeBool;
+    }
+
+    timestamp = value;
   },
   /**
    * Used to set the default log level for all loggers

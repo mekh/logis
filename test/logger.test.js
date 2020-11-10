@@ -80,6 +80,43 @@ describe('# Logger', () => {
     expect(log.colorize).toBe(config.useColors);
   });
 
+  it('should return default useTimestamp', () => {
+    const log = logger.getLogger();
+
+    expect(log.timestamp).toBe(true);
+    expect(log.timestamp).toBe(config.timestamp);
+  });
+
+  it('should set timestamp via config value', () => {
+    config.timestamp = false;
+    const log = logger.getLogger();
+
+    expect(log.timestamp).toBe(false);
+    expect(log.timestamp).toBe(config.timestamp);
+  });
+
+  it('should set timestamp via env', () => {
+    process.env.LOG_TIMESTAMP = 'false';
+    const log = logger.getLogger();
+
+    expect(log.timestamp).toBe(false);
+    expect(log.timestamp).toBe(config.timestamp);
+  });
+
+  it('should throw if an timestamp value is not a boolean', () => {
+    expect(() => { logger.timestamp = 'a'; }).toThrow();
+  });
+
+  it('should not print the timestamp', () => {
+    const log = logger.getLogger();
+    log.timestamp = false;
+
+    const date = new Date().toISOString().slice(0, 10);
+    log.error('abc');
+
+    expect(print).not.toBeCalledWith(expect.stringContaining(date));
+  });
+
   it('should return the same logger', () => {
     const log1 = logger.getLogger('ABC');
     const log2 = logger.getLogger('ABC');
@@ -87,7 +124,7 @@ describe('# Logger', () => {
     expect(log1).toBe(log2);
   });
 
-  it('should throw if an invalid category passe', () => {
+  it('should throw if an invalid category passed', () => {
     expect(() => logger.getLogger(true)).toThrow();
   });
 

@@ -1,7 +1,7 @@
 # loggis [![build](https://travis-ci.org/mekh/logis.svg?branch=main)](https://travis-ci.org/github/mekh/logis) [![Coverage Status](https://coveralls.io/repos/github/mekh/logis/badge.svg?branch=main)](https://coveralls.io/github/mekh/logis?branch=main)
 A simple and lightweight logger for Node.JS
 
-#Install
+# Install
 ```bash
 npm install loggis
 ```

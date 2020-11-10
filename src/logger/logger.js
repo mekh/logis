@@ -20,6 +20,7 @@ class Logger {
     this.useColors = null;
 
     this.format = config.format;
+    this.useTimestamp = config.timestamp;
 
     assertLogLevel(this.level);
 
@@ -63,6 +64,26 @@ class Logger {
     }
 
     this.useColors = value;
+  }
+
+  /**
+   * Get the timestamp setting
+   * @returns {boolean}
+   */
+  get timestamp() {
+    return this.useTimestamp;
+  }
+
+  /**
+   * Set false to remove the timestamp from the log output
+   * @param {boolean} value
+   */
+  set timestamp(value) {
+    if (typeof value !== 'boolean') {
+      throw errors.invalidTypeBool;
+    }
+
+    this.useTimestamp = value;
   }
 
   /**

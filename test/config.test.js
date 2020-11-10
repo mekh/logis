@@ -65,4 +65,8 @@ describe('# Config', () => {
     config.useColors = true;
     expect(config.useColors).toBe(true);
   });
+
+  it('timestamp - should throw if a value is not of boolean type', () => {
+    expect(() => { config.timestamp = 'a'; }).toThrow(errors.invalidTypeBool);
+  });
 });

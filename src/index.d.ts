@@ -80,6 +80,7 @@ declare namespace loggis {
     interface configure {
         loglevel?: logLevelString,
         colorize?: boolean,
+        timestamp?: boolean,
         format?: (params: format) => string,
     }
 
