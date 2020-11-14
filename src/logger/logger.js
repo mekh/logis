@@ -16,23 +16,43 @@ class Logger {
   constructor(category = '', loglevel) {
     this.category = category;
     this.levels = logLevels;
-    this.loglevel = loglevel;
-    this.useColors = null;
+    this.level = loglevel;
 
-    this.format = config.format;
+    this.useColors = null;
+    this.formatter = null;
     this.useTimestamp = config.timestamp;
 
-    assertLogLevel(this.level);
+    assertLogLevel(this.loglevel);
 
     this.setupLoggers();
+  }
+
+  /**
+   * Get formatter
+   * @returns {function}
+   */
+  get format() {
+    return this.formatter || config.format;
+  }
+
+  /**
+   * Set formatter
+   * @param {function} formatFn
+   */
+  set format(formatFn) {
+    if (typeof formatFn !== 'function') {
+      throw errors.invalidTypeFn;
+    }
+
+    this.formatter = formatFn;
   }
 
   /**
    * The the log level
    * @return {logLevelString}
    */
-  get level() {
-    return (this.loglevel || config.defaultLogLevel).toLowerCase();
+  get loglevel() {
+    return (this.level || config.defaultLogLevel).toLowerCase();
   }
 
   /**
@@ -40,9 +60,9 @@ class Logger {
    * @param {logLevelString} loglevel
    * @return {void}
    */
-  set level(loglevel) {
+  set loglevel(loglevel) {
     assertLogLevel(loglevel);
-    this.loglevel = loglevel.toLowerCase();
+    this.level = loglevel.toLowerCase();
   }
 
   /**
@@ -108,7 +128,7 @@ class Logger {
     assertLogLevel(loglevel);
 
     const messageLevel = this.levels[loglevel.toLowerCase()];
-    const loggerLevel = this.levels[this.level];
+    const loggerLevel = this.levels[this.loglevel];
 
     return loggerLevel >= messageLevel;
   }

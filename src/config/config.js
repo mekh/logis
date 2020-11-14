@@ -1,12 +1,19 @@
 const errors = require('../common/errors');
 const { assertLogLevel } = require('../logger/loglevel');
-const { format } = require('../logger/format');
+const { format: defaultFormatter } = require('../logger/format');
 
 const defaultLogLevel = 'info';
 
 let loglevel;
 let colorize;
 let timestamp;
+let formatter;
+
+const envConfig = {
+  get logLevel() { return process.env.LOG_LEVEL; },
+  get colorize() { return process.env.LOG_COLORS; },
+  get timestamp() { return process.env.LOG_TIMESTAMP; },
+};
 
 const config = {
   /**
@@ -18,30 +25,42 @@ const config = {
    * @return {logLevelString}
    */
   get defaultLogLevel() {
-    const { LOG_LEVEL = '' } = process.env;
+    const envLevel = envConfig.logLevel || '';
 
-    return loglevel
-        || LOG_LEVEL.toLowerCase()
+    return envLevel.toLowerCase()
+        || loglevel
         || defaultLogLevel;
+  },
+  /**
+   * Used to set the default log level for all loggers
+   * @param {logLevelString} level
+   */
+  set defaultLogLevel(level) {
+    if (level === undefined) {
+      return;
+    }
+
+    assertLogLevel(level);
+    loglevel = level.toLowerCase();
   },
   /**
    * The default log level
    * @return {boolean}
    */
   get useColors() {
-    return colorize || process.env.LOG_COLORS === 'true';
+    return !!(envConfig.colorize === 'true' || colorize);
   },
   /**
    * Get the default timestamp setting
    * @returns {boolean}
    */
   get timestamp() {
-    const { LOG_TIMESTAMP = 'true' } = process.env;
-    if (LOG_TIMESTAMP === 'false') {
+    const envTimestamp = envConfig.timestamp || 'true';
+    if (envTimestamp === 'false') {
       return false;
     }
 
-    return timestamp !== undefined ? timestamp : LOG_TIMESTAMP === 'true';
+    return timestamp !== undefined ? timestamp : envTimestamp === 'true';
   },
   /**
    * Set false to exclude the timestamp from the log output
@@ -55,15 +74,6 @@ const config = {
     timestamp = value;
   },
   /**
-   * Used to set the default log level for all loggers
-   * @param {logLevelString} level
-   */
-  set defaultLogLevel(level) {
-    assertLogLevel(level);
-
-    loglevel = level.toLowerCase();
-  },
-  /**
    * Use colorized output for all loggers if true
    * @param {boolean} value
    */
@@ -75,9 +85,18 @@ const config = {
     colorize = value;
   },
   /**
-   * Default message formatter
+   * Get message formatter
    */
-  format,
+  get format() {
+    return formatter || defaultFormatter;
+  },
+  /**
+   * Set default formatter
+   * @param {formatFn} fn
+   */
+  set format(fn) {
+    formatter = fn;
+  },
 };
 
 module.exports = {

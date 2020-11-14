@@ -34,11 +34,19 @@ declare class Logger {
     /**
      * Set a loglevel for a particular logger
      */
-    set level(logLevel: logLevelString)
+    set loglevel(logLevel: logLevelString)
     /**
      * Get log level
      */
-    get level(): logLevelString;
+    get loglevel(): logLevelString;
+    /**
+     * Get timestamp setting
+     */
+    get timestamp(): boolean;
+    /**
+     * Set timestamp setting
+     */
+    set timestamp(timestamp: boolean);
     /**
      * Set message formatter
      */

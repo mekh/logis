@@ -7,6 +7,10 @@ jest.mock('../src/logger/loglevel');
 jest.mock('../src/logger/format');
 
 describe('# Config', () => {
+  beforeEach(() => {
+    process.env.LOG_LEVEL = '';
+  });
+
   it('format - should have the format property', () => {
     expect(config.format).toBe(format);
   });
@@ -29,12 +33,12 @@ describe('# Config', () => {
     expect(config.defaultLogLevel).toBe('info');
   });
 
-  it('logLevel - should store the default log level', () => {
+  it('logLevel - should use process.env', () => {
     process.env.LOG_LEVEL = 'debug';
     config.defaultLogLevel = 'error';
 
     expect(assertLogLevel).toBeCalledWith('error');
-    expect(config.defaultLogLevel).toBe('error');
+    expect(config.defaultLogLevel).toBe('debug');
   });
 
   it('logLevel - should use lower case for the default log level', () => {

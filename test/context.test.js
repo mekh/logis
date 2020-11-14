@@ -17,13 +17,14 @@ class Test {
 describe('# Context', () => {
   beforeEach(() => {
     print.mockClear();
+    process.env.LOG_LEVEL = '';
   });
 
   each(methods)
     .it('should log in a class instance', (method) => {
       const category = `test_instance_${method}`;
       const log = logger.getLogger(category);
-      log.level = 'trace';
+      log.loglevel = 'trace';
 
       const instance = new Test(log);
       instance.log(method);

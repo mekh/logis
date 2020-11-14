@@ -39,7 +39,7 @@ describe('# Logger', () => {
 
   it('should call console.log in all log methods', () => {
     const log = logger.getLogger();
-    log.level = 'trace';
+    log.loglevel = 'trace';
 
     methods.forEach((method) => log[method]('a'));
 
@@ -103,6 +103,12 @@ describe('# Logger', () => {
     expect(log.timestamp).toBe(config.timestamp);
   });
 
+  it('should handle Error objects', () => {
+    logger.info(new Error('error_message'));
+
+    expect(print).toBeCalledWith(expect.stringContaining('error_message'));
+  });
+
   it('should throw if an timestamp value is not a boolean', () => {
     expect(() => { logger.timestamp = 'a'; }).toThrow();
   });
@@ -156,5 +162,22 @@ describe('# Logger', () => {
 
   it('should throw if unknown loglevel is passed', () => {
     expect(() => logger.configure({ loglevel: 'UNKNOWN' })).toThrow();
+  });
+
+  it('should not throw if no loglevel is passed', () => {
+    expect(() => logger.configure({ })).not.toThrow();
+  });
+
+  it('should use custom formatter', () => {
+    const log = logger.getLogger();
+    log.format = jest.fn();
+
+    log.info('A', 'B', 'C');
+
+    expect(log.format).toBeCalledWith({ args: ['A', 'B', 'C'], level: 'info', logger: log });
+  });
+
+  it('should throw if format is not a function', () => {
+    expect(() => { logger.getLogger().format = 'a'; }).toThrow();
   });
 });
