@@ -44,13 +44,6 @@ const config = {
     loglevel = level.toLowerCase();
   },
   /**
-   * The default log level
-   * @return {boolean}
-   */
-  get useColors() {
-    return !!(envConfig.colorize === 'true' || colorize);
-  },
-  /**
    * Get the default timestamp setting
    * @returns {boolean}
    */
@@ -72,6 +65,13 @@ const config = {
     }
 
     timestamp = value;
+  },
+  /**
+   * The default log level
+   * @return {boolean}
+   */
+  get useColors() {
+    return !!(envConfig.colorize === 'true' || colorize);
   },
   /**
    * Use colorized output for all loggers if true

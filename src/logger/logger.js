@@ -13,8 +13,8 @@ class Logger {
    * @param {string} [category] - category name
    * @param {logLevelString} [loglevel] - logging level
    */
-  constructor(category = '', loglevel) {
-    this.category = category;
+  constructor(category, loglevel) {
+    this.category = category || '';
     this.levels = logLevels;
     this.level = loglevel;
 
@@ -48,7 +48,7 @@ class Logger {
   }
 
   /**
-   * The the log level
+   * The log level
    * @return {logLevelString}
    */
   get loglevel() {
