@@ -33,7 +33,7 @@ class Primitives {
 
   /**
    * @param {function(*): boolean} checkFn
-   * @param {function(*): *} formatFn
+   * @param {function(*): *} [formatFn]
    * @returns {Primitives}
    */
   add(checkFn, formatFn) {

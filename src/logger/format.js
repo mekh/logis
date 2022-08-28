@@ -1,35 +1,44 @@
-const { isValidLevel } = require('./loglevel');
-const serialize = require('../utils/serialize');
+const { Parser, Primitives } = require('../parser');
+const { Formatter } = require('../formatter/formatter');
+const { Message } = require('./message');
+const callsites = require('../utils/callsite');
 
-/**
- * Build a log prefix
- * @param {Logger} logger
- * @param {logLevelString} [level]
- * @return {string}
- */
-const buildPrefix = ({ logger, level }) => {
-  const timestamp = logger.timestamp ? `[${new Date().toISOString()}]` : '';
-  const logLevel = isValidLevel(level) ? `[${level.toUpperCase()}]` : '';
-  const pid = `[${process.pid}]`;
-  const name = logger.category ? `[${logger.category}]` : '[default]';
+const primitives = new Primitives();
+const formatter = new Formatter();
 
-  return [timestamp, logLevel, pid, name].filter(Boolean).join(' ');
-};
+primitives
+  .add(Primitives.typeof('function'), (data) => `<Function ${data.name || 'anonymous'}>`)
+  .add(Primitives.instanceOf(Date))
+  .add(Primitives.instanceOf(Promise), () => '<Promise>')
+  .add(Primitives.instanceOf(Error), (data) => Object
+    .getOwnPropertyNames(data)
+    .reduce((acc, prop) => `${acc}\n${prop}: ${data[prop]}`, ''));
 
-/**
- * Format a message
- * @param {any[]} args - arguments that have been passed to logger function, e.g. log.info(...args)
- * @param {Logger} logger - the logger instance
- * @param {logLevelString} [level] - message level; e.g. for log.debug it will be 'debug'
- * @return {string}
- */
-const format = ({ args, logger, level }) => {
-  const message = args.map(serialize).join(' ');
-  const prefix = buildPrefix({ logger, level });
-  return `${prefix} ${message}`;
+formatter
+  .timestamp(timestamp => `[${timestamp.toISOString()}]`)
+  .logLevel(level => `[${level.toUpperCase()}]`)
+  .processPid(pid => `[${pid}]`)
+  .logCategory(category => `[${category}]`)
+  .fileName(filename => `[${filename.split('/').slice(-3).join('/')}]`)
+  .logItem();
+
+const format = ({ args, level, logger }) => {
+  const message = new Message({
+    items: Parser.parseArray(args, primitives),
+    level,
+    logger,
+    callsite: callsites(),
+  });
+
+  const result = message.format(formatter);
+
+  if (!logger.timestamp) {
+    result.shift();
+  }
+
+  return result.join(' ');
 };
 
 module.exports = {
-  buildPrefix,
   format,
 };

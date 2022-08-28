@@ -2,6 +2,15 @@ const References = require('./references');
 
 class Parser {
   /**
+   * @param {*[]} arr
+   * @param {Primitives} primitives
+   * @returns {*[]}
+   */
+  static parseArray(arr, primitives) {
+    return arr.map(item => new Parser(primitives).parse(item));
+  }
+
+  /**
    * @param {Primitives} primitives
    */
   constructor(primitives) {
