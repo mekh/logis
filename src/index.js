@@ -14,7 +14,7 @@ const config = (logger, options) => {
 };
 
 /**
- * Get a stored or a new logger
+ * Get stored or a new logger
  * @param {string} [category]
  * @return {Logger}
  */
