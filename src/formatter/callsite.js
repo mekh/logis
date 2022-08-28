@@ -1,9 +1,7 @@
-/* eslint-disable no-param-reassign */
 /**
- * @param {object} message
- * @returns {message&{callsite: {fileName: string, functionName: string, lineNumber: number}}}
+ * @returns {{fileName: string, functionName: string, lineNumber: number}}
  */
-const getCallsite = (message) => {
+const getCallsite = () => {
   const bkp = Error.prepareStackTrace;
   Error.prepareStackTrace = (_, stack) => stack;
 
@@ -11,13 +9,11 @@ const getCallsite = (message) => {
   const caller = new Error().stack[3];
   Error.prepareStackTrace = bkp;
 
-  message.callsite = {
+  return {
     fileName: caller ? caller.getFileName() : 'unknown',
     functionName: caller ? caller.getFunctionName() : 'anonymous',
     lineNumber: caller ? caller.getLineNumber() : -1,
   };
-
-  return message;
 };
 
 module.exports = getCallsite;
