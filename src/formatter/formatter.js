@@ -87,7 +87,7 @@ class Formatter {
    * @private
    */
   addStruct(wrapper, fn) {
-    this.structure.push((message) => (wrapper ? wrapper(fn(message)) : fn(message)));
+    this.structure.push((message) => (wrapper ? wrapper.call(this, fn(message)) : fn(message)));
     return this;
   }
 
@@ -96,7 +96,6 @@ class Formatter {
    * @returns {string}
    * @private
    */
-  // eslint-disable-next-line class-methods-use-this
   toString(logItems) {
     return logItems
       .map(item => (item && ['symbol', 'object'].includes(typeof item)
