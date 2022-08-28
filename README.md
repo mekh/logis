@@ -2,12 +2,14 @@
 A simple and lightweight logger for Node.JS
 
 # Features
-- zero-dependency
+- no dependencies
 - ready for usage right out of the box
 - global and individual configuration of loggers
 - both **CommonJS** and **ESM** are supported
-- **Typescripts** friendly
+- **Typescript** friendly
 - automatic objects serialization
+- automatic circular structures handling
+- robust configuration
 - colored output
 
 # Installation
@@ -37,11 +39,11 @@ I.e. if the `LOG_LEVEL` variable set to `debug`, calling the `configure({ loglev
 ## Environment variables
 The default configuration can be set through the environment variables.
 
-|Name           |Type     |Default value|Description
-|---------------|---------|-------------|-----------
-| LOG_LEVEL     | String  | info        |The default logging level
-| LOG_COLORS    | Boolean | false       |Turns on/off the colorized output
-| LOG_TIMESTAMP | Boolean | true        |Turns on/off the timestamp prefix
+| Name          | Type    | Default value | Description                       |
+|---------------|---------|---------------|-----------------------------------|
+| LOG_LEVEL     | String  | info          | The default logging level         |
+| LOG_COLORS    | Boolean | false         | Turns on/off the colorized output |
+| LOG_TIMESTAMP | Boolean | true          | Turns on/off the timestamp prefix |
 
 ## Configure options
 The default configuration can be passed to the `configure` method.
