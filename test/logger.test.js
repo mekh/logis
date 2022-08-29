@@ -1,6 +1,6 @@
 const each = require('jest-each').default;
 const Logger = require('../src/logger/logger');
-const { config } = require('../src/config');
+const { Config } = require('../src/config');
 const logger = require('../src');
 
 const methods = Object.keys(logger.levels);
@@ -26,7 +26,7 @@ describe('# Logger', () => {
   });
 
   it('should use the storage limit', () => {
-    const { storageLimit } = config;
+    const { storageLimit } = Config;
     const log1 = logger.getLogger('A');
 
     for (let i = 0; i < storageLimit; i += 1) {
@@ -55,10 +55,10 @@ describe('# Logger', () => {
 
   it('should set colorize', () => {
     const log = logger.getLogger();
-    log.useColors = false;
+    log.colorize = false;
     log.colorize = true;
 
-    expect(log.useColors).toBe(true);
+    expect(log.colorize).toBe(true);
   });
 
   it('should throw if non-boolean is passed', () => {
@@ -66,33 +66,19 @@ describe('# Logger', () => {
     expect(() => { log.colorize = 'a'; }).toThrow();
   });
 
-  it('should return useColors', () => {
-    const log = logger.getLogger();
-    log.useColors = 'z';
-
-    expect(log.colorize).toBe('z');
-  });
-
-  it('should return default useColors', () => {
-    const log = logger.getLogger();
-    log.useColors = null;
-
-    expect(log.colorize).toBe(config.useColors);
-  });
-
   it('should return default useTimestamp', () => {
     const log = logger.getLogger();
 
     expect(log.timestamp).toBe(true);
-    expect(log.timestamp).toBe(config.timestamp);
+    expect(log.timestamp).toBe(Config.timestamp);
   });
 
   it('should set timestamp via config value', () => {
-    config.timestamp = false;
+    Config.timestamp = false;
     const log = logger.getLogger();
 
     expect(log.timestamp).toBe(false);
-    expect(log.timestamp).toBe(config.timestamp);
+    expect(log.timestamp).toBe(Config.timestamp);
   });
 
   it('should set timestamp via env', () => {
@@ -100,7 +86,7 @@ describe('# Logger', () => {
     const log = logger.getLogger();
 
     expect(log.timestamp).toBe(false);
-    expect(log.timestamp).toBe(config.timestamp);
+    expect(log.timestamp).toBe(Config.timestamp);
   });
 
   it('should handle Error objects', () => {

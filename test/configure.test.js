@@ -1,25 +1,23 @@
-const { config, configure } = require('../src/config');
+const { Config } = require('../src/config');
 const { format } = require('../src/logger/format');
-
-jest.mock('../src/config/config');
 
 describe('# Configure', () => {
   it('should use default values', () => {
-    configure({ loglevel: 'abc' });
+    Config.configure({ loglevel: 'debug' });
 
-    expect(config.defaultLogLevel).toBe('abc');
-    expect(config.useColors).toBe(false);
-    expect(config.timestamp).toBe(true);
-    expect(config.format).toBe(format);
+    expect(Config.loglevel).toBe('debug');
+    expect(Config.colorize).toBe(false);
+    expect(Config.timestamp).toBe(true);
+    expect(Config.format).toBe(format);
   });
 
   it('should reassign the default values', () => {
     const formatter = jest.fn();
-    configure({ loglevel: 'xyz', colorize: true, format: formatter, timestamp: false });
+    Config.configure({ loglevel: 'trace', colorize: true, format: formatter, timestamp: false });
 
-    expect(config.defaultLogLevel).toBe('xyz');
-    expect(config.useColors).toBe(true);
-    expect(config.timestamp).toBe(false);
-    expect(config.format).toBe(formatter);
+    expect(Config.loglevel).toBe('trace');
+    expect(Config.colorize).toBe(true);
+    expect(Config.timestamp).toBe(false);
+    expect(Config.format).toBe(formatter);
   });
 });

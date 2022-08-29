@@ -23,6 +23,7 @@ declare type formatFn = (params: format) => string;
  * Logger
  */
 declare class Logger {
+    levels: logLevels;
     /**
      * Make the output colorized (if true)
      */

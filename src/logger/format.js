@@ -1,10 +1,10 @@
 const { Parser, Primitives } = require('../parser');
-const { Formatter } = require('../formatter/formatter');
+const { Logline } = require('../formatter/logline');
 const { Message } = require('./message');
 const callsites = require('../utils/callsite');
 
 const primitives = new Primitives();
-const formatter = new Formatter();
+const formatter = new Logline();
 
 primitives
   .add(Primitives.typeof('function'), (data) => `<Function ${data.name || 'anonymous'}>`)

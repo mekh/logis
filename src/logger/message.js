@@ -18,7 +18,7 @@ class Message {
   }
 
   /**
-   * @param {Formatter} formatter
+   * @param {Logline} formatter
    * @returns {*}
    */
   format(formatter) {

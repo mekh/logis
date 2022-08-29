@@ -1,13 +1,21 @@
-const errors = require('../common/errors');
-const { assertLogLevel } = require('../logger/loglevel');
+/* eslint-disable no-underscore-dangle */
+/**
+ * @typedef ConfigParams
+ * @property {string} [loglevel]
+ * @property {boolean} [colorize]
+ * @property {function(*): *} [format]
+ * @property {boolean} [timestamp]
+ */
+
+const Errors = require('../common/errors');
+const LogLevel = require('../logger/loglevel');
 const { format: defaultFormatter } = require('../logger/format');
 
-const defaultLogLevel = 'info';
-
-let loglevel;
-let colorize;
-let timestamp;
-let formatter;
+const DEFAULT_STORAGE_LIMIT = 100;
+const DEFAULT_LOG_LEVEL = 'info';
+const DEFAULT_USE_TIME_STAMP = true;
+const DEFAULT_USE_COLORS = false;
+const DEFAULT_FORMAT_FN = defaultFormatter;
 
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
@@ -15,90 +23,226 @@ const envConfig = {
   get timestamp() { return process.env.LOG_TIMESTAMP; },
 };
 
-const config = {
+class Config {
   /**
    * The maximum number of loggers that could be stored and retrieved via logger.getLogger
    */
-  storageLimit: 100,
+  static storageLimit = DEFAULT_STORAGE_LIMIT;
+
+  static _format = DEFAULT_FORMAT_FN;
+
+  static _loglevel;
+
+  static _colorize;
+
+  static _timestamp;
+
+  static get loglevel() {
+    if (Config._loglevel !== undefined) {
+      return Config._loglevel;
+    }
+
+    const env = envConfig.logLevel;
+
+    return LogLevel.isValidLevel(env)
+      ? env.toLowerCase()
+      : DEFAULT_LOG_LEVEL;
+  }
+
+  /**
+   * @param {string} level
+   */
+  static set loglevel(level) {
+    const loglevel = level || DEFAULT_LOG_LEVEL;
+    LogLevel.assertLogLevel(loglevel);
+    Config._loglevel = loglevel.toLowerCase();
+  }
+
+  static get colorize() {
+    if (Config._colorize !== undefined) {
+      return Config._colorize;
+    }
+
+    return envConfig.colorize === 'true';
+  }
+
+  /**
+   * @param {boolean} useColors
+   */
+  static set colorize(useColors) {
+    const colorize = useColors !== undefined
+      ? useColors
+      : DEFAULT_USE_COLORS;
+
+    if (typeof colorize !== 'boolean') {
+      throw Errors.invalidTypeBool;
+    }
+    Config._colorize = colorize;
+  }
+
+  static get timestamp() {
+    if (Config._timestamp !== undefined) {
+      return Config._timestamp;
+    }
+
+    return envConfig.timestamp === 'true' || DEFAULT_USE_TIME_STAMP;
+  }
+
+  /**
+   * @param {boolean} useTimestamp
+   */
+  static set timestamp(useTimestamp) {
+    const timestamp = useTimestamp !== undefined
+      ? useTimestamp
+      : DEFAULT_USE_TIME_STAMP;
+
+    if (typeof timestamp !== 'boolean') {
+      throw Errors.invalidTypeBool;
+    }
+    Config._timestamp = timestamp;
+  }
+
+  /**
+   * @return {(function({args: *, level: *, logger: *}): *)}
+   */
+  static get format() {
+    return Config._format;
+  }
+
+  /**
+   * @param {function(*): string} formatFn
+   */
+  static set format(formatFn) {
+    if (formatFn === undefined) {
+      return;
+    }
+
+    if (typeof formatFn !== 'function') {
+      throw Errors.invalidTypeFn;
+    }
+    Config._format = formatFn;
+  }
+
+  /**
+   * @param {ConfigParams} config
+   * @return {Config}
+   */
+  static configure(config) {
+    Config.loglevel = config.loglevel;
+    Config.timestamp = config.timestamp;
+    Config.colorize = config.colorize;
+    Config.format = config.format;
+  }
+
+  /**
+   * @param {ConfigParams} [config]
+   */
+  constructor({
+    loglevel = Config.loglevel,
+    colorize = Config.colorize,
+    format = Config.format,
+    timestamp = Config.timestamp,
+  } = {}) {
+    this.loglevel = loglevel;
+    this.colorize = colorize;
+    this.format = format;
+    this.timestamp = timestamp;
+  }
+
   /**
    * The default log level
-   * @return {logLevelString}
+   * @returns {string}
    */
-  get defaultLogLevel() {
-    const envLevel = envConfig.logLevel || '';
+  get loglevel() {
+    return this._loglevel;
+  }
 
-    return envLevel.toLowerCase()
-        || loglevel
-        || defaultLogLevel;
-  },
   /**
    * Used to set the default log level for all loggers
-   * @param {logLevelString} level
+   * @param {string|undefined} level
    */
-  set defaultLogLevel(level) {
+  set loglevel(level) {
     if (level === undefined) {
       return;
     }
 
-    assertLogLevel(level);
-    loglevel = level.toLowerCase();
-  },
+    LogLevel.assertLogLevel(level);
+    this._loglevel = level.toLowerCase();
+  }
+
   /**
    * Get the default timestamp setting
    * @returns {boolean}
    */
   get timestamp() {
-    const envTimestamp = envConfig.timestamp || 'true';
-    if (envTimestamp === 'false') {
-      return false;
-    }
+    return this._timestamp;
+  }
 
-    return timestamp !== undefined ? timestamp : envTimestamp === 'true';
-  },
   /**
    * Set false to exclude the timestamp from the log output
    * @param value
    */
   set timestamp(value) {
-    if (typeof value !== 'boolean') {
-      throw errors.invalidTypeBool;
+    if (value === undefined) {
+      return;
     }
 
-    timestamp = value;
-  },
+    if (typeof value !== 'boolean') {
+      throw Errors.invalidTypeBool;
+    }
+
+    this._timestamp = value;
+  }
+
   /**
    * The default log level
-   * @return {boolean}
+   * @returns {boolean}
    */
-  get useColors() {
-    return !!(envConfig.colorize === 'true' || colorize);
-  },
+  get colorize() {
+    return this._colorize;
+  }
+
   /**
    * Use colorized output for all loggers if true
    * @param {boolean} value
    */
-  set useColors(value) {
-    if (typeof value !== 'boolean') {
-      throw errors.invalidTypeBool;
+  set colorize(value) {
+    if (value === undefined) {
+      return;
     }
 
-    colorize = value;
-  },
+    if (typeof value !== 'boolean') {
+      throw Errors.invalidTypeBool;
+    }
+
+    this._colorize = value;
+  }
+
   /**
    * Get message formatter
+   * @returns {function(*): string}
    */
   get format() {
-    return formatter || defaultFormatter;
-  },
+    return this._format;
+  }
+
   /**
    * Set default formatter
-   * @param {formatFn} fn
+   * @param {function(*): string} value
    */
-  set format(fn) {
-    formatter = fn;
-  },
-};
+  set format(value) {
+    if (value === undefined) {
+      return;
+    }
+
+    if (typeof value !== 'function') {
+      throw Errors.invalidTypeFn;
+    }
+
+    this._format = value;
+  }
+}
 
 module.exports = {
-  config,
+  Config,
 };

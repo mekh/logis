@@ -1,4 +1,4 @@
-class Formatter {
+class Logline {
   constructor() {
     this.structure = [];
     this.separator = ' ';
@@ -6,7 +6,7 @@ class Formatter {
 
   /**
    * @param {function(data: Date): string} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   timestamp(wrapper) {
     return this.addStruct(wrapper, (message) => message.date);
@@ -14,7 +14,7 @@ class Formatter {
 
   /**
    * @param {function(data: number): string} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   processPid(wrapper) {
     return this.addStruct(wrapper, (message) => message.pid);
@@ -22,7 +22,7 @@ class Formatter {
 
   /**
    * @param {function(data: string): string} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   fileName(wrapper) {
     return this.addStruct(wrapper, (message) => message.fileName);
@@ -30,7 +30,7 @@ class Formatter {
 
   /**
    * @param {function(data: string): string} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   functionName(wrapper) {
     return this.addStruct(wrapper, (message) => message.functionName);
@@ -38,7 +38,7 @@ class Formatter {
 
   /**
    * @param {function(data: number): number} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   lineNumber(wrapper) {
     return this.addStruct(wrapper, (message) => message.lineNumber);
@@ -46,7 +46,7 @@ class Formatter {
 
   /**
    * @param {function(data: string): string} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   logLevel(wrapper) {
     return this.addStruct(wrapper, (message) => message.level);
@@ -54,7 +54,7 @@ class Formatter {
 
   /**
    * @param {function(data: *[]): string} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   logItem(wrapper) {
     const logFormat = wrapper || this.toString;
@@ -64,7 +64,7 @@ class Formatter {
 
   /**
    * @param {function(data: string): string} [wrapper]
-   * @returns {Formatter}
+   * @returns {Logline}
    */
   logCategory(wrapper) {
     return this.addStruct(wrapper, (message) => message.category);
@@ -83,7 +83,7 @@ class Formatter {
   /**
    * @param {function(data: *): *} [wrapper]
    * @param {function(data: *): *} fn
-   * @returns {Formatter}
+   * @returns {Logline}
    * @private
    */
   addStruct(wrapper, fn) {
@@ -106,5 +106,5 @@ class Formatter {
 }
 
 module.exports = {
-  Formatter,
+  Logline,
 };
