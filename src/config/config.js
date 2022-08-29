@@ -9,13 +9,11 @@
 
 const Errors = require('../common/errors');
 const LogLevel = require('../logger/loglevel');
-const { format: defaultFormatter } = require('../logger/format');
 
 const DEFAULT_STORAGE_LIMIT = 100;
 const DEFAULT_LOG_LEVEL = 'info';
 const DEFAULT_USE_TIME_STAMP = true;
 const DEFAULT_USE_COLORS = false;
-const DEFAULT_FORMAT_FN = defaultFormatter;
 
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
@@ -29,7 +27,7 @@ class Config {
    */
   static storageLimit = DEFAULT_STORAGE_LIMIT;
 
-  static _format = DEFAULT_FORMAT_FN;
+  static _format;
 
   static _loglevel;
 

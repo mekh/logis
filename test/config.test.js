@@ -1,9 +1,6 @@
 const errors = require('../src/common/errors');
 const { Config } = require('../src/config');
 const loglevel = require('../src/logger/loglevel');
-const { format } = require('../src/logger/format');
-
-jest.mock('../src/logger/format');
 
 describe('# Config', () => {
   beforeEach(() => {
@@ -11,7 +8,7 @@ describe('# Config', () => {
   });
 
   it('format - should have the format property', () => {
-    expect(Config.format).toBe(format);
+    expect(Config.format).toBe(undefined);
   });
 
   it('limit - should keep the storage limit property', () => {

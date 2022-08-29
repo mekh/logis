@@ -1,5 +1,4 @@
 const { Config } = require('../src/config');
-const { format } = require('../src/logger/format');
 
 describe('# Configure', () => {
   it('should use default values', () => {
@@ -8,7 +7,7 @@ describe('# Configure', () => {
     expect(Config.loglevel).toBe('debug');
     expect(Config.colorize).toBe(false);
     expect(Config.timestamp).toBe(true);
-    expect(Config.format).toBe(format);
+    expect(Config.format).toBe(undefined);
   });
 
   it('should reassign the default values', () => {

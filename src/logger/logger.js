@@ -9,7 +9,10 @@
 const { colors } = require('../common/levels');
 const { assertLogLevel, isValidLevel } = require('./loglevel');
 const { levels, logLevels } = require('../common/levels');
+const { Parser, defaults } = require('../formatter');
+const { Message } = require('./message');
 const { Config } = require('../config');
+const callsites = require('../utils/callsite');
 
 /**
  * @class Logger
@@ -20,26 +23,33 @@ class Logger {
    * @param {string} [category] - category name
    * @param {object} config - logging level
    * @param storage
+   * @param logline
+   * @param primitives
    */
   constructor({
     category,
     config,
     storage,
+    logline = defaults.logline,
+    primitives = defaults.primitives,
   }) {
-    this.category = category || '';
+    this.category = category || 'default';
     this.config = config;
     this.levels = logLevels;
     this.storage = storage;
+
+    this.logline = logline;
+    this.primitives = primitives;
 
     this.setupLoggers();
   }
 
   /**
    * Get formatter
-   * @returns {function}
+   * @returns {function|undefined}
    */
   get format() {
-    return this.config.format;
+    return this.config.format || this.buildLog;
   }
 
   /**
@@ -140,11 +150,9 @@ class Logger {
    * @private
    */
   setupLoggers() {
-    this.error = this.log.bind(this, levels.error);
-    this.warn = this.log.bind(this, levels.warn);
-    this.info = this.log.bind(this, levels.info);
-    this.debug = this.log.bind(this, levels.debug);
-    this.trace = this.log.bind(this, levels.trace);
+    Object.values(levels).forEach((level) => {
+      this[level] = this.log.bind(this, level);
+    });
   }
 
   /**
@@ -183,6 +191,19 @@ class Logger {
     const output = this.colorize && isValidLevel(level) ? colors[level.toLowerCase()](text) : text;
 
     console.log(output);
+  }
+
+  buildLog({ args, level }) {
+    const data = Parser.parseArray(args, this.primitives);
+    const message = new Message({
+      data,
+      level,
+      category: this.category,
+      callsite: callsites(),
+      timestamp: this.timestamp,
+    });
+
+    return this.logline.build(message).join(' ');
   }
 }
 

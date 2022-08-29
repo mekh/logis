@@ -1,28 +1,36 @@
+const fakeDate = new Proxy({}, {
+  get() {
+    return () => {};
+  },
+});
+
 class Message {
   /**
-   * @param {Logger} logger
+   * @param {string} category
    * @param {string} level
-   * @param {*[]}items
+   * @param {*[]} data
    * @param {object} callsite
+   * @param {boolean} timestamp
    */
-  constructor({ logger, level, items, callsite }) {
-    this.date = new Date();
-    this.timestamp = logger.timestamp;
+  constructor({ category, level, data, callsite, timestamp }) {
+    this.date = timestamp ? new Date() : fakeDate;
     this.pid = process.pid;
-    this.items = items;
+    this.data = data;
     this.level = level;
-    this.category = logger.category || 'default';
+    this.category = category;
     this.fileName = callsite.fileName;
     this.lineNumber = callsite.lineNumber;
     this.functionName = callsite.functionName;
+
+    this.payload = this.toString();
   }
 
-  /**
-   * @param {Logline} formatter
-   * @returns {*}
-   */
-  format(formatter) {
-    return formatter.format(this);
+  toString() {
+    return this.data
+      .map(item => (item && ['symbol', 'object'].includes(typeof item)
+        ? JSON.stringify(item)
+        : item))
+      .join(' ');
   }
 }
 
