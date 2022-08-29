@@ -30,7 +30,7 @@ const format = ({ args, level, logger }) => {
     callsite: callsites(),
   });
 
-  const result = message.format(formatter);
+  const result = formatter.format(message);
 
   if (!logger.timestamp) {
     result.shift();

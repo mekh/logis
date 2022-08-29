@@ -63,7 +63,7 @@ class Config {
       return Config._colorize;
     }
 
-    return envConfig.colorize === 'true';
+    return envConfig.colorize === 'true' || DEFAULT_USE_COLORS;
   }
 
   /**

@@ -37,7 +37,17 @@ describe('# Logger', () => {
     expect(log1).not.toBe(log2);
   });
 
-  it('should call console.log in all log methods', () => {
+  it('default logger - should call console.log in all log methods', () => {
+    const { loglevel } = logger;
+    logger.loglevel = 'trace';
+
+    methods.forEach((method) => logger[method]('a'));
+
+    expect(print).toBeCalledTimes(methods.length);
+    logger.loglevel = loglevel;
+  });
+
+  it('getLogger - should call console.log in all log methods', () => {
     const log = logger.getLogger();
     log.loglevel = 'trace';
 

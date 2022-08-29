@@ -1,6 +1,15 @@
+/**
+ * @typedef ConfigParams
+ * @property {string} [loglevel]
+ * @property {boolean} [colorize]
+ * @property {function(*): *} [format]
+ * @property {boolean} [timestamp]
+ */
+
 const { colors } = require('../common/levels');
 const { assertLogLevel, isValidLevel } = require('./loglevel');
 const { levels, logLevels } = require('../common/levels');
+const { Config } = require('../config');
 
 /**
  * @class Logger
@@ -10,11 +19,17 @@ class Logger {
    * @constructor
    * @param {string} [category] - category name
    * @param {object} config - logging level
+   * @param storage
    */
-  constructor(category, config) {
+  constructor({
+    category,
+    config,
+    storage,
+  }) {
     this.category = category || '';
     this.config = config;
     this.levels = logLevels;
+    this.storage = storage;
 
     this.setupLoggers();
   }
@@ -37,7 +52,7 @@ class Logger {
 
   /**
    * The log level
-   * @return {string}
+   * @returns {string}
    */
   get loglevel() {
     return this.config.loglevel;
@@ -46,7 +61,6 @@ class Logger {
   /**
    * Set the log level
    * @param {string} loglevel
-   * @return {void}
    */
   set loglevel(loglevel) {
     this.config.loglevel = loglevel;
@@ -54,7 +68,7 @@ class Logger {
 
   /**
    * Colorize getter
-   * @return {boolean}
+   * @returns {boolean}
    */
   get colorize() {
     return this.config.colorize;
@@ -63,7 +77,6 @@ class Logger {
   /**
    * Colorize setter
    * @param {boolean} value
-   * @return {void}
    */
   set colorize(value) {
     this.config.colorize = value;
@@ -86,14 +99,40 @@ class Logger {
   }
 
   /**
+   * Get a new or stored logger
+   * @param category
+   * @returns {Logger}
+   */
+  getLogger(category) {
+    const stored = this.storage.getLogger(category);
+    if (stored) {
+      return stored;
+    }
+
+    const logger = new Logger({
+      category,
+      config: new Config(),
+      storage: this.storage,
+    });
+
+    if (category) {
+      this.storage.addLogger(category, logger);
+    }
+
+    return logger;
+  }
+
+  /**
    * @param {ConfigParams} config
-   * @return {Config}
+   * @returns {Logger}
    */
   configure(config) {
     this.loglevel = config.loglevel;
     this.timestamp = config.timestamp;
     this.colorize = config.colorize;
     this.format = config.format;
+
+    return this;
   }
 
   /**
@@ -111,7 +150,7 @@ class Logger {
   /**
    * Return true if message level is less or equal to the logger's one
    * @param {string} loglevel - message log level
-   * @return {boolean}
+   * @returns {boolean}
    * @private
    */
   shouldLog(loglevel) {
@@ -127,7 +166,7 @@ class Logger {
    * Print out a message
    * @param {string|any} [level]
    * @param {any[]} args
-   * @return {void}
+   * @returns {void}
    * @private
    */
   log(level, ...args) {
