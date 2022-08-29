@@ -68,8 +68,4 @@ describe('# Config', () => {
     Config.colorize = true;
     expect(Config.colorize).toBe(true);
   });
-
-  it('timestamp - should throw if a value is not of boolean type', () => {
-    expect(() => { Config.timestamp = 'a'; }).toThrow(errors.invalidTypeBool);
-  });
 });

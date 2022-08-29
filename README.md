@@ -1,16 +1,19 @@
 # loggis [![build](https://travis-ci.org/mekh/logis.svg?branch=main)](https://travis-ci.org/github/mekh/logis) [![Coverage Status](https://coveralls.io/repos/github/mekh/logis/badge.svg?branch=main)](https://coveralls.io/github/mekh/logis?branch=main)
-A simple and lightweight logger for Node.JS
+A simple, lightweight,   console logger for Node.JS.
+A perfect choice for Kubernetes, Docker, and other systems that collect logs directly from stdout.
 
 # Features
 - no dependencies
+- safe for any kind of data - Express req/res, Sequelize models, Error objects, etc.
 - ready for usage right out of the box
 - global and individual configuration of loggers
 - both **CommonJS** and **ESM** are supported
 - **Typescript** friendly
 - automatic objects serialization
 - automatic circular structures handling
+- tracing information - caller's file/function name, and even line number where the log method has been called
 - robust configuration
-- colored output
+- optionally - colored output
 
 # Installation
 ```bash
@@ -19,6 +22,16 @@ $ npm install loggis
 
 # Quick start
 The logger can be user right out of the box, i.e. it does not require any configuration by default.
+The default settings are:
+- loglevel: info
+- colorize: false
+- logline: [ISO timestamp] [level] [process.pid] [category] [filename] message
+- primitives
+  - Function => <Function ${function.name || 'anonymous'}>
+  - Date instance => Date.toISOString()
+  - Promise instance => '<Promise>'
+  - Error instance => error properties/values concatenated by a new line
+
 ```js
 const log = require('loggis');
 
@@ -43,19 +56,32 @@ The default configuration can be set through the environment variables.
 |---------------|---------|---------------|-----------------------------------|
 | LOG_LEVEL     | String  | info          | The default logging level         |
 | LOG_COLORS    | Boolean | false         | Turns on/off the colorized output |
-| LOG_TIMESTAMP | Boolean | true          | Turns on/off the timestamp prefix |
 
 ## Configure options
 The default configuration can be passed to the `configure` method.
 It accepts the following parameters:
 - loglevel - the default logging level, valid values are `error`, `warn`, `info`, `debug`, and `trace`
 - colorize - use colored output
-- timestamp - use timestamp prefix
-- format - custom message formatter
+- format - (DEPRECATED) custom message formatter
+- logline - the Logline instance
+- primitives - the Primitives instance
 
-The same parameters can be used for an individual configuration of a logger.
+The same parameters, except logline and primitives, can be used for an individual configuration of a logger.
 
-## Custom formatter
+## Circulars
+```js
+const logger = require('loggis');
+
+const a = { a: 1 };
+a.b = a; // circular reference
+a.c = [1, { d: 2, e: { f: 'abc' } }]
+a.g = a.c[1].e; // circular reference
+
+logger.info(a);
+// ...{"a":1,"b":"[REF => .]","c":[1,{"d":2,"e":{"f":"abc"}}],"g":"[REF => c[1].e]"}
+```
+
+## [DEPRECATED] Custom formatter
 The formatter function accepts an object with the following properties:
 - args -  an array of arguments that was passed to a log method
 - level - logging level
@@ -118,7 +144,7 @@ The default an individual configuration
 ```js
 const loggis = require('loggis');
 
-loggis.configure({ loglevel: 'warn', colorize: true, timestamp: false });
+loggis.configure({ loglevel: 'warn', colorize: true });
 
 const logDebug = loggis.getLogger('A'); // the default configuration will be applied
 const logTrace = loggis.getLogger('B');
@@ -131,9 +157,8 @@ logDebug.trace('will not be printed since the default loglevel is warn');
 logTrace.trace('the configuration is =>', {
   loglevel: logTrace.loglevel,
   colorize: logTrace.colorize,
-  timestamp: logTrace.timestamp,
 });
-// [TRACE] [16959] [B] indivial configuration is => {"loglevel":"trace","colorize":false,"timestamp":false}
+// [TRACE] [16959] [B] indivial configuration is => {"loglevel":"trace","colorize":false}
 ````
 
 ESM

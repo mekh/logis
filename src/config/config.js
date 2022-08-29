@@ -4,9 +4,8 @@
  * @property {string} [loglevel]
  * @property {boolean} [colorize]
  * @property {function(*): *} [format]
- * @property {boolean} [timestamp]
- * @property {object} logline
- * @property {object} primitives
+ * @property {object} [logline]
+ * @property {object} [primitives]
  */
 
 const Errors = require('../common/errors');
@@ -15,13 +14,11 @@ const formatter = require('../formatter');
 
 const DEFAULT_STORAGE_LIMIT = 100;
 const DEFAULT_LOG_LEVEL = 'info';
-const DEFAULT_USE_TIME_STAMP = true;
 const DEFAULT_USE_COLORS = false;
 
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
   get colorize() { return process.env.LOG_COLORS; },
-  get timestamp() { return process.env.LOG_TIMESTAMP; },
 };
 
 class Config {
@@ -30,9 +27,9 @@ class Config {
    */
   static storageLimit = DEFAULT_STORAGE_LIMIT;
 
-  static logline = formatter.defaults.logline;
+  static _logline = formatter.defaults.logline;
 
-  static primitives = formatter.defaults.primitives;
+  static _primitives = formatter.defaults.primitives;
 
   static _format;
 
@@ -40,7 +37,29 @@ class Config {
 
   static _colorize;
 
-  static _timestamp;
+  static get logline() {
+    return Config._logline;
+  }
+
+  static set logline(logline) {
+    if (logline === undefined) {
+      return;
+    }
+
+    Config._logline = logline;
+  }
+
+  static get primitives() {
+    return Config._primitives;
+  }
+
+  static set primitives(primitives) {
+    if (primitives === undefined) {
+      return;
+    }
+
+    Config._primitives = primitives;
+  }
 
   static get loglevel() {
     if (Config._loglevel !== undefined) {
@@ -85,28 +104,6 @@ class Config {
     Config._colorize = colorize;
   }
 
-  static get timestamp() {
-    if (Config._timestamp !== undefined) {
-      return Config._timestamp;
-    }
-
-    return envConfig.timestamp === 'true' || DEFAULT_USE_TIME_STAMP;
-  }
-
-  /**
-   * @param {boolean} useTimestamp
-   */
-  static set timestamp(useTimestamp) {
-    const timestamp = useTimestamp !== undefined
-      ? useTimestamp
-      : DEFAULT_USE_TIME_STAMP;
-
-    if (typeof timestamp !== 'boolean') {
-      throw Errors.invalidTypeBool;
-    }
-    Config._timestamp = timestamp;
-  }
-
   /**
    * @return {(function({args: *, level: *, logger: *}): *)}
    */
@@ -132,9 +129,8 @@ class Config {
    * @param {ConfigParams} config
    * @return {Config}
    */
-  static configure(config) {
+  static setGlobalConfig(config) {
     Config.loglevel = config.loglevel;
-    Config.timestamp = config.timestamp;
     Config.colorize = config.colorize;
     Config.format = config.format;
     Config.logline = config.logline;
@@ -148,12 +144,10 @@ class Config {
     loglevel = Config.loglevel,
     colorize = Config.colorize,
     format = Config.format,
-    timestamp = Config.timestamp,
   } = {}) {
     this.loglevel = loglevel;
     this.colorize = colorize;
     this.format = format;
-    this.timestamp = timestamp;
   }
 
   /**
@@ -175,30 +169,6 @@ class Config {
 
     LogLevel.assertLogLevel(level);
     this._loglevel = level.toLowerCase();
-  }
-
-  /**
-   * Get the default timestamp setting
-   * @returns {boolean}
-   */
-  get timestamp() {
-    return this._timestamp;
-  }
-
-  /**
-   * Set false to exclude the timestamp from the log output
-   * @param value
-   */
-  set timestamp(value) {
-    if (value === undefined) {
-      return;
-    }
-
-    if (typeof value !== 'boolean') {
-      throw Errors.invalidTypeBool;
-    }
-
-    this._timestamp = value;
   }
 
   /**

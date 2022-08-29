@@ -76,47 +76,10 @@ describe('# Logger', () => {
     expect(() => { log.colorize = 'a'; }).toThrow();
   });
 
-  it('should return default useTimestamp', () => {
-    const log = logger.getLogger();
-
-    expect(log.timestamp).toBe(true);
-    expect(log.timestamp).toBe(Config.timestamp);
-  });
-
-  it('should set timestamp via config value', () => {
-    Config.timestamp = false;
-    const log = logger.getLogger();
-
-    expect(log.timestamp).toBe(false);
-    expect(log.timestamp).toBe(Config.timestamp);
-  });
-
-  it('should set timestamp via env', () => {
-    process.env.LOG_TIMESTAMP = 'false';
-    const log = logger.getLogger();
-
-    expect(log.timestamp).toBe(false);
-    expect(log.timestamp).toBe(Config.timestamp);
-  });
-
   it('should handle Error objects', () => {
     logger.info(new Error('error_message'));
 
     expect(print).toBeCalledWith(expect.stringContaining('error_message'));
-  });
-
-  it('should throw if an timestamp value is not a boolean', () => {
-    expect(() => { logger.timestamp = 'a'; }).toThrow();
-  });
-
-  it('should not print the timestamp', () => {
-    const log = logger.getLogger();
-    log.timestamp = false;
-
-    const date = new Date().toISOString().slice(0, 10);
-    log.error('abc');
-
-    expect(print).not.toBeCalledWith(expect.stringContaining(date));
   });
 
   it('should return the same logger', () => {

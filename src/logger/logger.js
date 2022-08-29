@@ -4,7 +4,6 @@
  * @property {string} [loglevel]
  * @property {boolean} [colorize]
  * @property {function(*): *} [format]
- * @property {boolean} [timestamp]
  */
 
 const { colors } = require('../common/levels');
@@ -104,22 +103,6 @@ class Logger {
   }
 
   /**
-   * Get the timestamp setting
-   * @returns {boolean}
-   */
-  get timestamp() {
-    return this.config.timestamp;
-  }
-
-  /**
-   * Set false to remove the timestamp from the log output
-   * @param {boolean} value
-   */
-  set timestamp(value) {
-    this.config.timestamp = value;
-  }
-
-  /**
    * Get a new or stored logger
    * @param category
    * @returns {Logger}
@@ -149,7 +132,6 @@ class Logger {
    */
   configure(config) {
     this.loglevel = config.loglevel;
-    this.timestamp = config.timestamp;
     this.colorize = config.colorize;
     this.format = config.format;
 
@@ -210,7 +192,6 @@ class Logger {
       data,
       level,
       category: this.category,
-      timestamp: this.timestamp,
       callsite: callsites(),
     });
 

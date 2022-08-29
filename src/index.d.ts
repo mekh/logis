@@ -63,15 +63,41 @@ declare interface Message {
 }
 
 /**
- * The primitive is an item that is processed by the given format Fn
- * it does not take a part on further parsing even if it's an array or object
- * This could be useful to filter log output, to format specific elements, etc.
+ * A primitive is an element that is processed by a given format function
+ * The formatting function is only applied if checkFn returned true.
+ * This could be useful for filtering or modifying some items before they
+ * go to the log output.
  *
- * The format function is applied only if the check one returned true
+ * @example
+ * const mask = (number) => number
+ *   .toString()
+ *   .split('')
+ *   .map((d, i) => (i >= 6 && i < 12 ? '*' : d))
+ *   .join('');
  *
+ * const primitives = new Primitives()
+ *   .add(
+ *     (obj) => (obj && obj.password), // formatting function
+ *     (obj) => ({ ...obj, password: '***' }), // check function
+ *   )
+ *   .add(
+ *     (obj) => (obj && obj.cvv && obj.number),
+ *     (obj) => ({ ...obj, cvv: '***', number: mask(obj.number) }),
+ *   );
+ *
+ * const logline = new Logline().add(message => message);
+ * logger.configure({ logline, primitives });
+ *
+ * logger.info('user_info =>', {
+ *   name: 'John',
+ *   password: 'super_secret',
+ *   card: { cvv: 321, number: 4111111111111111 },
+ * });
+ *
+ * // user_info => {"name":"John","password":"***","card":{"cvv":"***","number":"411111******1111"}}
  */
 declare interface Primitives {
-    add(checkFn: (value: any) => boolean, formatFn: (value: any) => string);
+    add(checkFn: (value: any) => boolean, formatFn: (value: any) => any);
 }
 
 /**
@@ -90,7 +116,7 @@ declare interface Logline {
      *   .join(' | ');
      *
      * ...
-     * log.info('abc', { b: 123 }); // => `2022-01-01T12:01:01.001Z | [INFO] | abc {"b": 123}`
+     * log.info('abc', { b: 123 }); // `2022-01-01T12:01:01.001Z | [INFO] | abc {"b": 123}`
      */
     add(format: (message: Message) => string): Logline;
     /**
@@ -120,14 +146,6 @@ declare class Logger {
      * Get log level
      */
     get loglevel(): logLevelString;
-    /**
-     * Get timestamp setting
-     */
-    get timestamp(): boolean;
-    /**
-     * Set timestamp setting
-     */
-    set timestamp(timestamp: boolean);
     /**
      * Set message formatter
      */
@@ -169,7 +187,6 @@ declare namespace loggis {
     interface configure {
         loglevel?: logLevelString,
         colorize?: boolean,
-        timestamp?: boolean,
         format?: (params: format) => string,
         logline?: Logline,
         primitives?: Primitives,

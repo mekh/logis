@@ -1,19 +1,12 @@
-const fakeDate = new Proxy({}, {
-  get() {
-    return () => {};
-  },
-});
-
 class Message {
   /**
    * @param {string} category
    * @param {string} level
    * @param {*[]} data
    * @param {object} callsite
-   * @param {boolean} timestamp
    */
-  constructor({ category, level, data, callsite, timestamp }) {
-    this.date = timestamp ? new Date() : fakeDate;
+  constructor({ category, level, data, callsite }) {
+    this.date = new Date();
     this.pid = process.pid;
     this.data = data;
     this.level = level;

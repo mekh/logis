@@ -29,6 +29,7 @@ class Primitives {
 
   constructor() {
     this.primitives = [];
+    this.types = Primitives.types;
   }
 
   /**
@@ -54,7 +55,7 @@ class Primitives {
    * @returns {boolean}
    */
   isPrimitive(data) {
-    return data === null || Primitives.types.includes(typeof data) || this.get(data);
+    return data === null || this.types.includes(typeof data);
   }
 }
 

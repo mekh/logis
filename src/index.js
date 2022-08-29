@@ -3,7 +3,6 @@
  * @property {string} [loglevel]
  * @property {boolean} [colorize]
  * @property {function(*): *} [format]
- * @property {boolean} [timestamp]
  * @property {object} [logline]
  * @property {object} [primitives]
  */
@@ -21,7 +20,9 @@ const logger = new Logger({ storage, config: new Config() });
  * @return {Logger}
  */
 logger.configure = (config = {}) => {
-  Config.configure({ ...defaults, ...config });
+  Config.setGlobalConfig({ ...defaults, ...config });
+  logger.config = new Config();
+
   return logger;
 };
 
