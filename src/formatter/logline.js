@@ -1,14 +1,24 @@
 class Logline {
   constructor() {
     this.formatters = [];
+    this.separator = ' ';
   }
 
   /**
-   * @param {function(data: *): *} [wrapper]
+   * @param {function(data: *): *} [format]
    * @returns {Logline}
    */
-  add(wrapper) {
-    this.formatters.push((message) => wrapper.call(this, message));
+  add(format) {
+    this.formatters.push((message) => format(message));
+    return this;
+  }
+
+  /**
+   * @param {string} separator
+   * @return {Logline}
+   */
+  join(separator) {
+    this.separator = separator || this.separator;
     return this;
   }
 
@@ -17,7 +27,9 @@ class Logline {
    * @returns {*[]}
    */
   build(message) {
-    return this.formatters.reduce((acc, fn) => ([...acc, fn(message)]), []);
+    return this.formatters
+      .reduce((acc, fn) => ([...acc, fn(message)]), [])
+      .join(this.separator);
   }
 }
 

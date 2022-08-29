@@ -7,7 +7,7 @@ const primitives = new Primitives();
 const wrap = data => (data ? `[${data}]` : '');
 
 /**
- * The message argument is an instance of Message
+ * The message argument in 'add' method is an instance of Message
  */
 logline
   .add(message => wrap(message.date.toISOString()))
@@ -25,6 +25,9 @@ primitives
     .getOwnPropertyNames(data)
     .reduce((acc, prop) => `${acc}\n${prop}: ${data[prop]}`, ''));
 
+/**
+ * @type {{defaults: {logline: Logline, primitives: Primitives}, Logline: Logline, Primitives: Primitives, Parser: Parser}}
+ */
 module.exports = {
   Parser,
   Primitives,

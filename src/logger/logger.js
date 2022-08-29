@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /**
  * @typedef ConfigParams
  * @property {string} [loglevel]
@@ -9,7 +10,7 @@
 const { colors } = require('../common/levels');
 const { assertLogLevel, isValidLevel } = require('./loglevel');
 const { levels, logLevels } = require('../common/levels');
-const { Parser, defaults } = require('../formatter');
+const { Parser } = require('../formatter');
 const { Message } = require('./message');
 const { Config } = require('../config');
 const callsites = require('../utils/callsite');
@@ -23,25 +24,35 @@ class Logger {
    * @param {string} [category] - category name
    * @param {object} config - logging level
    * @param storage
-   * @param logline
-   * @param primitives
    */
   constructor({
     category,
     config,
     storage,
-    logline = defaults.logline,
-    primitives = defaults.primitives,
   }) {
     this.category = category || 'default';
     this.config = config;
     this.levels = logLevels;
     this.storage = storage;
 
-    this.logline = logline;
-    this.primitives = primitives;
-
     this.setupLoggers();
+  }
+
+  /**
+   * All loggers should have the same log-string format,
+   * so no setters here
+   * @return {Logline}
+   */
+  get logline() {
+    return Config.logline;
+  }
+
+  /**
+   * Same as for logline
+   * @return {Primitives}
+   */
+  get primitives() {
+    return Config.primitives;
   }
 
   /**
@@ -199,11 +210,11 @@ class Logger {
       data,
       level,
       category: this.category,
-      callsite: callsites(),
       timestamp: this.timestamp,
+      callsite: callsites(),
     });
 
-    return this.logline.build(message).join(' ');
+    return this.logline.build(message);
   }
 }
 

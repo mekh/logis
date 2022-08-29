@@ -5,10 +5,13 @@
  * @property {boolean} [colorize]
  * @property {function(*): *} [format]
  * @property {boolean} [timestamp]
+ * @property {object} logline
+ * @property {object} primitives
  */
 
 const Errors = require('../common/errors');
 const LogLevel = require('../logger/loglevel');
+const formatter = require('../formatter');
 
 const DEFAULT_STORAGE_LIMIT = 100;
 const DEFAULT_LOG_LEVEL = 'info';
@@ -26,6 +29,10 @@ class Config {
    * The maximum number of loggers that could be stored and retrieved via logger.getLogger
    */
   static storageLimit = DEFAULT_STORAGE_LIMIT;
+
+  static logline = formatter.defaults.logline;
+
+  static primitives = formatter.defaults.primitives;
 
   static _format;
 
@@ -130,6 +137,8 @@ class Config {
     Config.timestamp = config.timestamp;
     Config.colorize = config.colorize;
     Config.format = config.format;
+    Config.logline = config.logline;
+    Config.primitives = config.primitives;
   }
 
   /**
