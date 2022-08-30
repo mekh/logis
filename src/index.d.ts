@@ -1,7 +1,7 @@
 /**
  * Available log levels
  */
-declare interface logLevels {
+interface logLevels {
     error: 0,
     warn: 1,
     info: 2,
@@ -9,20 +9,22 @@ declare interface logLevels {
     trace: 4,
 }
 
-declare type logLevelString = keyof logLevels;
+type logLevelString = keyof logLevels;
 
-declare interface format {
-    args: any[],
-    logger?: Logger,
-    level?: logLevelString,
-}
-
-declare type formatFn = (params: format) => string;
+type primitives = [
+    'number',
+    'string',
+    'boolean',
+    'undefined',
+    'bigint',
+    'symbol',
+    'function',
+]
 
 /**
  * Represents a message data and meta-data
  */
-declare interface Message {
+export interface Message {
     /**
      * The date the message is created
      */
@@ -62,6 +64,34 @@ declare interface Message {
     text: string;
 }
 
+
+/**
+ * The logline configuration represents the format of the string
+ * that will be printed by the logger
+ */
+export class Logline {
+    /**
+     * The `json` parameter defines the output format - a string if it false, JSON if it true
+     */
+    constructor(config?: { json: boolean });
+    /**
+     * Add a logline item formatter
+     *
+     * @example:
+     * const logline = new Logline();
+     *
+     * logline
+     *   .add(message => message.date.toISOString)
+     *   .add(message => `[${message.level.toUpperCase()}])
+     *   .add(message => message.text)
+     *   .join(' | ');
+     *
+     * ...
+     * log.info('abc', { b: 123 }); // `2022-01-01T12:01:01.001Z | [INFO] | abc {"b": 123}`
+     */
+    add(format: (message: Message) => any): Logline;
+}
+
 /**
  * A primitive is an element that is processed by a given format function
  * The formatting function is only applied if checkFn returned true.
@@ -96,104 +126,138 @@ declare interface Message {
  *
  * // user_info => {"name":"John","password":"***","card":{"cvv":"***","number":"411111******1111"}}
  */
-declare interface Primitives {
-    add(checkFn: (value: any) => boolean, formatFn: (value: any) => any);
-}
+export class Primitives {
+    /**
+     * A list of primitive types from the logger's point of view
+     */
+    static types: primitives;
 
-/**
- * The logline configuration represents the format of the string
- * that will be printed by the logger
- */
-declare interface Logline {
     /**
-     * Add a logline item formatter
-     *
-     * @example:
-     * logline
-     *   .add(message => message.date.toISOString)
-     *   .add(message => `[${message.level.toUpperCase()}])
-     *   .add(message => message.text)
-     *   .join(' | ');
-     *
-     * ...
-     * log.info('abc', { b: 123 }); // `2022-01-01T12:01:01.001Z | [INFO] | abc {"b": 123}`
+     * Check if `data` is a type of `type`
      */
-    add(format: (message: Message) => string): Logline;
-    /**
-     * Set a separator string
-     */
-    join(separator: string): Logline;
-}
+    static typeof(type: string): ((data: any) => boolean);
 
-/**
- * Logger
- */
-declare class Logger {
-    levels: logLevels;
     /**
-     * Make the output colorized (if true)
+     * Check if `data` is an instance of `cls`
      */
-    set colorize(value: boolean);
+    static instanceof(cls: object): ((data: object) => boolean);
+
     /**
-     * Get current status
+     * The formatFn will be applied to any item if the checkFn returned true for the same item
      */
-    get colorize(): boolean;
+    add(checkFn: (data: any) => boolean, formatFn: (data: any) => any);
     /**
-     * Set a loglevel for a particular logger
+     * Returns true if data is null or typeof data is in `this.types` array
      */
-    set loglevel(logLevel: logLevelString)
-    /**
-     * Get log level
-     */
-    get loglevel(): logLevelString;
-    /**
-     * Set message formatter
-     */
-    set format(params: formatFn);
-    /**
-     * Returns the formatter function
-     */
-    get format(): formatFn;
-    /**
-     * General logging function
-     */
-    protected log(level?: logLevelString | any, ...args: any[]): void
-    /**
-     * Output error message
-     */
-    error(...args: any[]): void;
-    /**
-     * Output warn message
-     */
-    warn(...args: any[]): void;
-    /**
-     * Output info message
-     */
-    info(...args: any[]): void;
-    /**
-     * Output debug message
-     */
-    debug(...args: any[]): void;
-    /**
-     * Output trace message
-     */
-    trace(...args: any[]): void;
+    isPrimitive(data: any): boolean;
 }
 
 declare namespace loggis {
+    interface loggerFormatFn {
+        args: any[],
+        logger?: Logger,
+        level?: logLevelString,
+    }
+
+    type formatFn = (params: loggerFormatFn) => string;
+
+    /**
+     * Logger
+     */
+    class Logger {
+        levels: logLevels;
+        /**
+         * Get current log output format - JSON if true, string otherwise
+         */
+        get json(): boolean;
+        /**
+         * Get a new logger instance configured with the default config
+         */
+        getLogger(category: string): Logger;
+        /**
+         * Make the output colorized (if true)
+         */
+        set colorize(value: boolean);
+        /**
+         * Get current status
+         */
+        get colorize(): boolean;
+        /**
+         * Set a loglevel for a particular logger
+         */
+        set loglevel(logLevel: logLevelString)
+        /**
+         * Get log level
+         */
+        get loglevel(): logLevelString;
+        /**
+         * Set message formatter
+         */
+        set format(params: formatFn);
+        /**
+         * Returns the formatter function
+         */
+        get format(): formatFn;
+        /**
+         * General logging function
+         */
+        protected log(level?: logLevelString | any, ...args: any[]): string;
+        /**
+         * Output error message
+         */
+        error(...args: any[]): string;
+        /**
+         * Output warn message
+         */
+        warn(...args: any[]): string;
+        /**
+         * Output info message
+         */
+        info(...args: any[]): string;
+        /**
+         * Output debug message
+         */
+        debug(...args: any[]): string;
+        /**
+         * Output trace message
+         */
+        trace(...args: any[]): string;
+    }
+
     /**
      * Global configuration
      */
     interface configure {
+        /**
+         * Set to true for JSON output
+         * Default is false
+         */
         json?: boolean;
+        /**
+         * Default is `info`
+         */
         loglevel?: logLevelString;
+        /**
+         * Default is false
+         */
         colorize?: boolean;
-        format?: (params: format) => string;
+        /**
+         * DEPRECATED
+         */
+        format?: (params: loggerFormatFn) => string;
+        /**
+         * Define logline format
+         * Check /src/formatter/index.js for defaults
+         */
         logline?: Logline;
+        /**
+         * Define the primitives formatting rules
+         * Check /src/formatter/index.js for defaults
+         */
         primitives?: Primitives;
     }
 
-    interface logger extends Logger {
+    export interface logger extends Logger {
         /**
          * Set the default configuration for all loggers
          */
@@ -204,8 +268,10 @@ declare namespace loggis {
          */
         getLogger(category?: string | symbol): logger;
     }
+
 }
 
-declare const logger: loggis.logger;
-
-export = logger;
+export const logger: loggis.logger;
+export const logline: Logline;
+export const loglineJson: Logline;
+export const primitives: Primitives;

@@ -38,7 +38,7 @@ class Primitives {
    * @returns {Primitives}
    */
   add(checkFn, formatFn) {
-    this.primitives.unshift(new Primitive({ checkFn, formatFn }));
+    this.primitives.push(new Primitive({ checkFn, formatFn }));
     return this;
   }
 
