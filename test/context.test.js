@@ -1,5 +1,5 @@
 const each = require('jest-each').default;
-const logger = require('../src');
+const { logger } = require('../src');
 
 const methods = Object.keys(logger.levels);
 const print = jest.spyOn(console, 'log').mockImplementation();
@@ -37,7 +37,7 @@ describe('# Context', () => {
       const category = `test_promise_${method}`;
       const log = logger.getLogger(category);
 
-      const promise = new Promise(res => setTimeout(() => res(method), 1));
+      const promise = new Promise(res => { setTimeout(() => res(method), 1); });
       await promise.then(log.info);
 
       expect(print).toHaveBeenCalledWith(expect.stringContaining(category));

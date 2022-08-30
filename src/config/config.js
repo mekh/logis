@@ -3,6 +3,7 @@
  * @typedef ConfigParams
  * @property {string} [loglevel]
  * @property {boolean} [colorize]
+ * @property {boolean} [json]
  * @property {function(*): *} [format]
  * @property {object} [logline]
  * @property {object} [primitives]
@@ -15,6 +16,7 @@ const formatter = require('../formatter');
 const DEFAULT_STORAGE_LIMIT = 100;
 const DEFAULT_LOG_LEVEL = 'info';
 const DEFAULT_USE_COLORS = false;
+const DEFAULT_USE_JSON = false;
 
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
@@ -36,6 +38,8 @@ class Config {
   static _loglevel;
 
   static _colorize;
+
+  static _json;
 
   static get logline() {
     return Config._logline;
@@ -125,6 +129,31 @@ class Config {
     Config._format = formatFn;
   }
 
+  static get json() {
+    if (Config._json !== undefined) {
+      return Config._json;
+    }
+
+    return envConfig.json === 'true' || DEFAULT_USE_JSON;
+  }
+
+  /**
+   * @param {boolean} useJson
+   */
+  static set json(useJson) {
+    const json = useJson !== undefined
+      ? useJson
+      : DEFAULT_USE_JSON;
+
+    if (typeof json !== 'boolean') {
+      throw Errors.invalidTypeBool;
+    }
+    Config._json = useJson;
+    Config._logline = useJson
+      ? formatter.defaults.loglineJson
+      : formatter.defaults.logline;
+  }
+
   /**
    * @param {ConfigParams} config
    * @return {Config}
@@ -135,6 +164,7 @@ class Config {
     Config.format = config.format;
     Config.logline = config.logline;
     Config.primitives = config.primitives;
+    Config.json = config.json;
   }
 
   /**

@@ -1,5 +1,6 @@
 /**
  * @typedef ConfigParams
+ * @property {boolean} [json]
  * @property {string} [loglevel]
  * @property {boolean} [colorize]
  * @property {function(*): *} [format]
@@ -10,7 +11,7 @@
 const Logger = require('./logger/logger');
 const storage = require('./utils/storage');
 const { Config } = require('./config');
-const { defaults } = require('./formatter');
+const { defaults, Primitives, Logline } = require('./formatter');
 
 const logger = new Logger({ storage, config: new Config() });
 
@@ -26,4 +27,9 @@ logger.configure = (config = {}) => {
   return logger;
 };
 
-module.exports = logger;
+module.exports = {
+  logger,
+  ...defaults,
+  Primitives,
+  Logline,
+};

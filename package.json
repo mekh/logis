@@ -1,6 +1,6 @@
 {
   "name": "loggis",
-  "version": "2.1.1",
+  "version": "3.0.0-beta.1",
   "description": "A simple and lightweight logger",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -35,7 +35,19 @@
     "warn",
     "info",
     "debug",
-    "trace"
+    "trace",
+    "k8s",
+    "kubernetes",
+    "fluentd",
+    "syslog",
+    "graylog",
+    "gelf",
+    "logentries",
+    "awslogs",
+    "ewt",
+    "docker",
+    "swarm",
+    "stdout"
   ],
   "author": "Alexandr V.Mekh",
   "license": "MIT",

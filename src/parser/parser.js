@@ -54,9 +54,9 @@ class Parser {
    * @private
    */
   handlePrimitive(data) {
-    const primitive = this.primiteves.get(data);
+    const primitives = this.primiteves.get(data);
 
-    return primitive ? primitive.format(data) : data;
+    return primitives ? primitives.reduce((acc, primitive) => primitive.format(acc), data) : data;
   }
 
   /**

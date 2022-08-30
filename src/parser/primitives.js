@@ -44,10 +44,12 @@ class Primitives {
 
   /**
    * @param {*} data
-   * @returns {Primitive|undefined}
+   * @returns {Primitive[]|undefined}
    */
   get(data) {
-    return this.primitives.find(item => item.is(data));
+    const result = this.primitives.filter(item => item.is(data));
+
+    return result.length ? result : undefined;
   }
 
   /**

@@ -57,9 +57,9 @@ declare interface Message {
      */
     functionName: string;
     /**
-     * Stringified values of `message.data` joined by spaces
+     * A string if 'json' is false, an array otherwise
      */
-    payload: string;
+    text: string;
 }
 
 /**
@@ -112,7 +112,7 @@ declare interface Logline {
      * logline
      *   .add(message => message.date.toISOString)
      *   .add(message => `[${message.level.toUpperCase()}])
-     *   .add(message => message.payload)
+     *   .add(message => message.text)
      *   .join(' | ');
      *
      * ...
@@ -185,23 +185,24 @@ declare namespace loggis {
      * Global configuration
      */
     interface configure {
-        loglevel?: logLevelString,
-        colorize?: boolean,
-        format?: (params: format) => string,
-        logline?: Logline,
-        primitives?: Primitives,
+        json?: boolean;
+        loglevel?: logLevelString;
+        colorize?: boolean;
+        format?: (params: format) => string;
+        logline?: Logline;
+        primitives?: Primitives;
     }
 
     interface logger extends Logger {
         /**
          * Set the default configuration for all loggers
          */
-        configure(params: configure): logger,
+        configure(params: configure): logger;
 
         /**
          * Get an existing logger by name or create and save a new one
          */
-        getLogger(category?: string | symbol): logger,
+        getLogger(category?: string | symbol): logger;
     }
 }
 

@@ -1,9 +1,13 @@
 # loggis [![build](https://travis-ci.org/mekh/logis.svg?branch=main)](https://travis-ci.org/github/mekh/logis) [![Coverage Status](https://coveralls.io/repos/github/mekh/logis/badge.svg?branch=main)](https://coveralls.io/github/mekh/logis?branch=main)
+# WARNING
+## This is a beta-version. It pretty much works, however not all tests have been performed, the documentation hasn't been updated, etc.
 A simple, lightweight,   console logger for Node.JS.
+
 A perfect choice for Kubernetes, Docker, and other systems that collect logs directly from stdout.
 
 # Features
 - no dependencies
+- supports JSON
 - safe for any kind of data - Express req/res, Sequelize models, Error objects, etc.
 - ready for usage right out of the box
 - global and individual configuration of loggers
@@ -11,7 +15,7 @@ A perfect choice for Kubernetes, Docker, and other systems that collect logs dir
 - **Typescript** friendly
 - automatic objects serialization
 - automatic circular structures handling
-- tracing information - caller's file/function name, and even line number where the log method has been called
+- tracing information - caller's file and function name, and even line number where the log method has been called
 - robust configuration
 - optionally - colored output
 
@@ -30,14 +34,15 @@ The default settings are:
   - Function => <Function ${function.name || 'anonymous'}>
   - Date instance => Date.toISOString()
   - Promise instance => '<Promise>'
+  - Buffer instance - Buffer.toString()
   - Error instance => error properties/values concatenated by a new line
 
 ```js
-const log = require('loggis');
+const { logger } = require('loggis');
 
-log.info('its simple');
-log.error('this', ['will', 'be'], { serialized: { into: 'a string'  } })
-log.trace('will not be printed since the default loglevel is info')
+logger.info('its simple');
+logger.error('this', ['will', 'be'], { serialized: { into: 'a string'  } })
+logger.trace('will not be printed since the default loglevel is info')
 // [2020-10-04T09:10:42.276Z] [INFO] [16616] its simple
 // [2020-10-04T09:10:42.276Z] [ERROR] [16616] this ["will","be"] {"serialized":{"into":"a string"}}
 ```
@@ -70,7 +75,7 @@ The same parameters, except logline and primitives, can be used for an individua
 
 ## Circulars
 ```js
-const logger = require('loggis');
+const { logger } = require('loggis');
 
 const a = { a: 1 };
 a.b = a; // circular reference
@@ -98,7 +103,7 @@ For example, if you want to:
 You can do it like this:
 ```js
 // ./src/logger/index.js
-const loggis = require('loggis');
+const { logger } = require('loggis');
 
 const customFormatter = ({ args, level, logger }) => {
   return JSON.stringify({
@@ -110,12 +115,12 @@ const customFormatter = ({ args, level, logger }) => {
   });
 };
 
-loggis.configure({ format: customFormatter });
+logger.configure({ format: customFormatter });
 
-module.exports = loggis;
+module.exports = logger;
 
 // ./src/app.js
-const logger = require('./logger');
+const { logger } = require('./logger');
 
 const log = logger.getLogger('MY_APP');
 log.error('one', 'two', 'three');
@@ -129,7 +134,7 @@ require('./src/app');
 # Usage examples
 Set the default configuration, get a logger, use it
 ```js
-const logger = require('loggis')
+const { logger } = require('loggis')
 
 const log = logger.configure({ loglevel: 'debug' }).getLogger('MY_APP');
 
@@ -142,12 +147,12 @@ log.trace('will not be printed, since the log level is DEBUG');
 
 The default an individual configuration
 ```js
-const loggis = require('loggis');
+const { logger } = require('loggis');
 
-loggis.configure({ loglevel: 'warn', colorize: true });
+logger.configure({ loglevel: 'warn', colorize: true });
 
-const logDebug = loggis.getLogger('A'); // the default configuration will be applied
-const logTrace = loggis.getLogger('B');
+const logDebug = logger.getLogger('A'); // the default configuration will be applied
+const logTrace = logger.getLogger('B');
 
 // configure an instance
 logTrace.loglevel = 'trace';
@@ -163,12 +168,7 @@ logTrace.trace('the configuration is =>', {
 
 ESM
 ```js
-import loggis from 'loggis';
+import { logger } from 'loggis';
 
-const log = loggis.getLogger('MY_APP');
+const log = logger.getLogger('MY_APP');
 ```
-```js
-import { getLogger } from 'loggis';
-
-const log = getLogger('MY_APP')
-````

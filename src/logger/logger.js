@@ -55,6 +55,14 @@ class Logger {
   }
 
   /**
+   * Defines output format
+   * @return {boolean}
+   */
+  get json() {
+    return Config.json;
+  }
+
+  /**
    * Get formatter
    * @returns {function|undefined}
    */
@@ -167,7 +175,7 @@ class Logger {
    * Print out a message
    * @param {string|any} [level]
    * @param {any[]} args
-   * @returns {void}
+   * @returns {string|undefined}
    * @private
    */
   log(level, ...args) {
@@ -184,11 +192,13 @@ class Logger {
     const output = this.colorize && isValidLevel(level) ? colors[level.toLowerCase()](text) : text;
 
     console.log(output);
+    return text;
   }
 
   buildLog({ args, level }) {
     const data = Parser.parseArray(args, this.primitives);
     const message = new Message({
+      json: this.json,
       data,
       level,
       category: this.category,

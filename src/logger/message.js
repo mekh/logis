@@ -1,11 +1,12 @@
 class Message {
   /**
+   * @param {boolean} json
    * @param {string} category
    * @param {string} level
    * @param {*[]} data
    * @param {object} callsite
    */
-  constructor({ category, level, data, callsite }) {
+  constructor({ json, category, level, data, callsite }) {
     this.date = new Date();
     this.pid = process.pid;
     this.data = data;
@@ -15,15 +16,17 @@ class Message {
     this.lineNumber = callsite.lineNumber;
     this.functionName = callsite.functionName;
 
-    this.payload = this.toString();
+    this.text = this.format(json);
   }
 
-  toString() {
-    return this.data
-      .map(item => (item && ['symbol', 'object'].includes(typeof item)
-        ? JSON.stringify(item)
-        : item))
-      .join(' ');
+  format(json) {
+    return json
+      ? this.data
+      : this.data.map(item => (
+        item && ['symbol', 'object'].includes(typeof item)
+          ? JSON.stringify(item)
+          : item
+      )).join(' ');
   }
 }
 

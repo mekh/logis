@@ -1,7 +1,12 @@
 class Logline {
-  constructor() {
+  /**
+   * @param {object} [config]
+   * @param {boolean} [config.json]
+   */
+  constructor({ json = false } = {}) {
     this.formatters = [];
     this.separator = ' ';
+    this.json = json;
   }
 
   /**
@@ -14,22 +19,35 @@ class Logline {
   }
 
   /**
-   * @param {string} separator
-   * @return {Logline}
-   */
-  join(separator) {
-    this.separator = separator || this.separator;
-    return this;
-  }
-
-  /**
    * @param {*} message
    * @returns {*[]}
    */
   build(message) {
-    return this.formatters
-      .reduce((acc, fn) => ([...acc, fn(message)]), [])
-      .join(this.separator);
+    const data = this.formatters.reduce((acc, fn) => ([...acc, fn(message)]), []);
+
+    return this.json ? this.buildJson(data) : this.buildLine(data);
+  }
+
+  /**
+   * @param {*[]} data
+   * @return {*}
+   */
+  buildLine(data) {
+    return data.join(this.separator);
+  }
+
+  /**
+   * @param {*[]} data
+   * @return {string}
+   */
+  buildJson(data) { // eslint-disable-line class-methods-use-this
+    const json = data.reduce((acc, item, idx) => (
+      item && typeof item === 'object'
+        ? { ...acc, ...item }
+        : { ...acc, [`[ ${idx} ]`]: item }
+    ), {});
+
+    return JSON.stringify(json);
   }
 }
 
