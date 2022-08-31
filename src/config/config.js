@@ -141,17 +141,19 @@ class Config {
    * @param {boolean} useJson
    */
   static set json(useJson) {
-    const json = useJson !== undefined
-      ? useJson
-      : DEFAULT_USE_JSON;
+    if (useJson === undefined) {
+      return;
+    }
 
-    if (typeof json !== 'boolean') {
+    if (typeof useJson !== 'boolean') {
       throw Errors.invalidTypeBool;
     }
+
     Config._json = useJson;
-    Config._logline = useJson
-      ? formatter.defaults.loglineJson
-      : formatter.defaults.logline;
+
+    if (Config._logline) {
+      Config._logline.json = useJson;
+    }
   }
 
   /**

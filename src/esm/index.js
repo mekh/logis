@@ -1,7 +1,7 @@
 /* eslint-disable prefer-destructuring */
-import loggis from '../index';
+import { logger } from '../index';
 
-export const getLogger = loggis.getLogger;
-export const configure = loggis.configure;
+export const getLogger = logger.getLogger;
+export const configure = logger.configure;
 
-export default loggis;
+export default logger;
