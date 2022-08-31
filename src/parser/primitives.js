@@ -28,6 +28,9 @@ class Primitives {
   }
 
   constructor() {
+    /**
+     * @type {Primitive[]}
+     */
     this.primitives = [];
     this.types = Primitives.types;
   }
@@ -50,6 +53,16 @@ class Primitives {
     const result = this.primitives.filter(item => item.is(data));
 
     return result.length ? result : undefined;
+  }
+
+  /**
+   * @param {*} data
+   * @return {*}
+   */
+  apply(data) {
+    const primitives = this.primitives.filter(item => item.is(data));
+
+    return primitives.reduce((acc, primitive) => primitive.format(acc), data);
   }
 
   /**

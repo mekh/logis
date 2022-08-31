@@ -14,7 +14,7 @@ class Parser {
    * @param {Primitives} primitives
    */
   constructor(primitives) {
-    this.primiteves = primitives;
+    this.primitives = primitives;
 
     this.references = new References();
   }
@@ -38,8 +38,8 @@ class Parser {
       return ref;
     }
 
-    const data = this.handlePrimitive(message);
-    if (this.primiteves.isPrimitive(data)) {
+    const data = this.primitives.apply(message);
+    if (this.primitives.isPrimitive(data)) {
       return data;
     }
 
@@ -49,19 +49,8 @@ class Parser {
   }
 
   /**
-   * @param {*} data
-   * @returns {*}
-   * @private
-   */
-  handlePrimitive(data) {
-    const primitives = this.primiteves.get(data);
-
-    return primitives ? primitives.reduce((acc, primitive) => primitive.format(acc), data) : data;
-  }
-
-  /**
-   * @param {handleObject} data
-   * @returns {handleObject}
+   * @param {object|*[]} data
+   * @returns {object|*[]}
    * @private
    */
   handleStructure(data) {
@@ -73,8 +62,8 @@ class Parser {
   }
 
   /**
-   * @param {[]}data
-   * @returns {[]}
+   * @param {*[]}data
+   * @returns {*[]}
    * @private
    */
   handleArray(data) {

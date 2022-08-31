@@ -14,7 +14,7 @@ class Primitive {
   }
 
   format(data) {
-    return this.formatFn(data);
+    return this.is(data) ? this.formatFn(data) : data;
   }
 }
 
