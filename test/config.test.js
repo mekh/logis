@@ -201,6 +201,21 @@ describe('# Config', () => {
       expect(config.loglevel).toEqual(Config.loglevel);
       expect(config.colorize).toEqual(Config.colorize);
       expect(config.format).toEqual(Config.format);
+      expect(config.json).toEqual(Config.json);
+      expect(config.logline).toEqual(Config.logline);
+      expect(config.primitives).toEqual(Config.primitives);
+    });
+
+    it('logline - should not set undefined', () => {
+      config.logline = undefined;
+
+      expect(config.logline).toBe(Config.logline);
+    });
+
+    it('primitives - should not set undefined', () => {
+      config.primitives = undefined;
+
+      expect(config.primitives).toBe(Config.primitives);
     });
 
     it('loglevel - should not set undefined', () => {
@@ -213,6 +228,12 @@ describe('# Config', () => {
       config.colorize = undefined;
 
       expect(config.colorize).toBe(Config.colorize);
+    });
+
+    it('json - should not set undefined', () => {
+      config.json = undefined;
+
+      expect(config.json).toBe(Config.json);
     });
 
     it('format - should not set undefined', () => {
@@ -233,6 +254,10 @@ describe('# Config', () => {
       expect(() => { config.format = 'a'; }).toThrow(errors.invalidTypeFn);
     });
 
+    it('json - should throw', () => {
+      expect(() => { config.json = 'a'; }).toThrow(errors.invalidTypeBool);
+    });
+
     it('loglevel - should set', () => {
       config.loglevel = 'trace';
 
@@ -250,6 +275,20 @@ describe('# Config', () => {
       config.format = format;
 
       expect(config.format).toBe(format);
+    });
+
+    it('json - should switch default logline to json', () => {
+      config.logline = defaults.logline;
+      config.json = true;
+
+      expect(config.logline).toBe(defaults.loglineJson);
+    });
+
+    it('json - should switch default logline to line', () => {
+      config.logline = defaults.loglineJson;
+      config.json = false;
+
+      expect(config.logline).toBe(defaults.logline);
     });
   });
 
