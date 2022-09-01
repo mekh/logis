@@ -29,6 +29,15 @@ class Logline {
   }
 
   /**
+   * @param {string} separator
+   * @returns {Logline}
+   */
+  join(separator) {
+    this.separator = separator;
+    return this;
+  }
+
+  /**
    * @param {*[]} data
    * @return {*}
    */

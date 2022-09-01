@@ -16,6 +16,14 @@ const { defaults, Primitives, Logline } = require('./formatter');
 const logger = new Logger({ storage, config: new Config() });
 
 /**
+ * @type {{Logline: Logline, Primitives: Primitives}}
+ */
+logger.formatters = {
+  Primitives,
+  Logline,
+};
+
+/**
  * Allow to change global settings
  * @param {ConfigParams} [config]
  * @return {Logger}
@@ -27,9 +35,4 @@ logger.configure = (config = {}) => {
   return logger;
 };
 
-module.exports = {
-  logger,
-  ...defaults,
-  Primitives,
-  Logline,
-};
+module.exports = logger;

@@ -21,10 +21,12 @@ type primitives = [
     'function',
 ]
 
+interface Cls<T, A extends any[] = any[]> extends Function { new(...args: A): T; }
+
 /**
  * Represents a message data and meta-data
  */
-export interface Message {
+declare interface Message {
     /**
      * The date the message is created
      */
@@ -69,7 +71,7 @@ export interface Message {
  * The logline configuration represents the format of the string
  * that will be printed by the logger
  */
-export class Logline {
+declare class Logline {
     /**
      * The `json` parameter defines the output format - a string if it false, JSON if it true
      */
@@ -89,7 +91,12 @@ export class Logline {
      * ...
      * log.info('abc', { b: 123 }); // `2022-01-01T12:01:01.001Z | [INFO] | abc {"b": 123}`
      */
-    add(format: (message: Message) => any): Logline;
+    add<T>(format: (message: Message) => T): Logline;
+    /**
+     * Replaces the default separator (a space) - see example above
+     * Won't have effect if json=true
+     */
+    join(separator: string): Logline;
 }
 
 /**
@@ -126,7 +133,7 @@ export class Logline {
  *
  * // user_info => {"name":"John","password":"***","card":{"cvv":"***","number":"411111******1111"}}
  */
-export class Primitives {
+declare class Primitives {
     /**
      * A list of primitive types from the logger's point of view
      */
@@ -135,21 +142,21 @@ export class Primitives {
     /**
      * Check if `data` is a type of `type`
      */
-    static typeof(type: string): ((data: any) => boolean);
+    static typeof<T>(type: string): ((data: T) => boolean);
 
     /**
      * Check if `data` is an instance of `cls`
      */
-    static instanceof(cls: object): ((data: object) => boolean);
+    static instanceof<T, V>(cls: Cls<T>): ((data: V) => boolean);
 
     /**
      * The formatFn will be applied to any item if the checkFn returned true for the same item
      */
-    add(checkFn: (data: any) => boolean, formatFn: (data: any) => any);
+    add<T, V>(checkFn: (data: T) => boolean, formatFn: (data: T) => V);
     /**
      * Returns true if data is null or typeof data is in `this.types` array
      */
-    isPrimitive(data: any): boolean;
+    isPrimitive<T>(data: T): boolean;
 }
 
 declare namespace loggis {
@@ -171,10 +178,6 @@ declare namespace loggis {
          */
         get json(): boolean;
         /**
-         * Get a new logger instance configured with the default config
-         */
-        getLogger(category: string): Logger;
-        /**
          * Make the output colorized (if true)
          */
         set colorize(value: boolean);
@@ -191,6 +194,14 @@ declare namespace loggis {
          */
         get loglevel(): logLevelString;
         /**
+         * Get logline instance configured for current logger
+         */
+        get logline(): Logline;
+        /**
+         * Get primitives instance configured for current logger
+         */
+        get primitives(): Primitives;
+        /**
          * Set message formatter
          */
         set format(params: formatFn);
@@ -202,6 +213,10 @@ declare namespace loggis {
          * General logging function
          */
         protected log(level?: logLevelString | any, ...args: any[]): string;
+        /**
+         * Get a new logger instance configured with the default config
+         */
+        getLogger(category: string): Logger;
         /**
          * Output error message
          */
@@ -257,21 +272,28 @@ declare namespace loggis {
         primitives?: Primitives;
     }
 
+    interface Formatters {
+        Logline: Logline;
+        Primitives: Primitives;
+    }
+
     export interface logger extends Logger {
         /**
          * Set the default configuration for all loggers
          */
         configure(params: configure): logger;
-
         /**
          * Get an existing logger by name or create and save a new one
          */
         getLogger(category?: string | symbol): logger;
+        /**
+         * Contains classes that could be used for configuration
+         */
+        formatters: Formatters;
     }
 
 }
 
-export const logger: loggis.logger;
-export const logline: Logline;
-export const loglineJson: Logline;
-export const primitives: Primitives;
+declare const logger: loggis.logger;
+
+export = logger;

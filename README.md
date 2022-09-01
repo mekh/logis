@@ -38,7 +38,7 @@ The default settings are:
   - Error instance => error properties/values concatenated by a new line
 
 ```js
-const { logger } = require('loggis');
+const logger = require('loggis');
 
 logger.info('its simple');
 logger.error('this', ['will', 'be'], { serialized: { into: 'a string'  } })
@@ -75,7 +75,7 @@ The same parameters, except logline and primitives, can be used for an individua
 
 ## Circulars
 ```js
-const { logger } = require('loggis');
+const logger = require('loggis');
 
 const a = { a: 1 };
 a.b = a; // circular reference
@@ -103,7 +103,7 @@ For example, if you want to:
 You can do it like this:
 ```js
 // ./src/logger/index.js
-const { logger } = require('loggis');
+const logger = require('loggis');
 
 const customFormatter = ({ args, level, logger }) => {
   return JSON.stringify({
@@ -120,7 +120,7 @@ logger.configure({ format: customFormatter });
 module.exports = logger;
 
 // ./src/app.js
-const { logger } = require('./logger');
+const logger = require('./logger');
 
 const log = logger.getLogger('MY_APP');
 log.error('one', 'two', 'three');
@@ -134,7 +134,7 @@ require('./src/app');
 # Usage examples
 Set the default configuration, get a logger, use it
 ```js
-const { logger } = require('loggis')
+const logger = require('loggis')
 
 const log = logger.configure({ loglevel: 'debug' }).getLogger('MY_APP');
 
@@ -147,7 +147,7 @@ log.trace('will not be printed, since the log level is DEBUG');
 
 The default an individual configuration
 ```js
-const { logger } = require('loggis');
+const logger = require('loggis');
 
 logger.configure({ loglevel: 'warn', colorize: true });
 
@@ -168,7 +168,7 @@ logTrace.trace('the configuration is =>', {
 
 ESM
 ```js
-import { logger } from 'loggis';
+import logger from 'loggis';
 
 const log = logger.getLogger('MY_APP');
 ```

@@ -11,7 +11,7 @@
 
 const Errors = require('../common/errors');
 const LogLevel = require('../logger/loglevel');
-const formatter = require('../formatter');
+const { defaults } = require('../formatter');
 
 const DEFAULT_STORAGE_LIMIT = 100;
 const DEFAULT_LOG_LEVEL = 'info';
@@ -21,6 +21,7 @@ const DEFAULT_USE_JSON = false;
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
   get colorize() { return process.env.LOG_COLORS; },
+  get json() { return process.env.LOG_JSON; },
 };
 
 class Config {
@@ -29,9 +30,9 @@ class Config {
    */
   static storageLimit = DEFAULT_STORAGE_LIMIT;
 
-  static _logline = formatter.defaults.logline;
+  static _logline;
 
-  static _primitives = formatter.defaults.primitives;
+  static _primitives;
 
   static _format;
 
@@ -42,7 +43,11 @@ class Config {
   static _json;
 
   static get logline() {
-    return Config._logline;
+    const defaultLogline = Config.json
+      ? defaults.loglineJson
+      : defaults.logline;
+
+    return Config._logline || defaultLogline;
   }
 
   static set logline(logline) {
@@ -54,9 +59,12 @@ class Config {
   }
 
   static get primitives() {
-    return Config._primitives;
+    return Config._primitives || defaults.primitives;
   }
 
+  /**
+   * @param {Primitivas} primitives
+   */
   static set primitives(primitives) {
     if (primitives === undefined) {
       return;
@@ -65,6 +73,9 @@ class Config {
     Config._primitives = primitives;
   }
 
+  /**
+   * @returns {string}
+   */
   static get loglevel() {
     if (Config._loglevel !== undefined) {
       return Config._loglevel;
@@ -81,11 +92,17 @@ class Config {
    * @param {string} level
    */
   static set loglevel(level) {
-    const loglevel = level || DEFAULT_LOG_LEVEL;
-    LogLevel.assertLogLevel(loglevel);
-    Config._loglevel = loglevel.toLowerCase();
+    if (level === undefined) {
+      return;
+    }
+
+    LogLevel.assertLogLevel(level);
+    Config._loglevel = level.toLowerCase();
   }
 
+  /**
+   * @returns {boolean}
+   */
   static get colorize() {
     if (Config._colorize !== undefined) {
       return Config._colorize;
@@ -98,14 +115,15 @@ class Config {
    * @param {boolean} useColors
    */
   static set colorize(useColors) {
-    const colorize = useColors !== undefined
-      ? useColors
-      : DEFAULT_USE_COLORS;
+    if (useColors === undefined) {
+      return;
+    }
 
-    if (typeof colorize !== 'boolean') {
+    if (typeof useColors !== 'boolean') {
       throw Errors.invalidTypeBool;
     }
-    Config._colorize = colorize;
+
+    Config._colorize = useColors;
   }
 
   /**
@@ -150,6 +168,13 @@ class Config {
     }
 
     Config._json = useJson;
+    if (useJson && Config._logline === defaults.logline) {
+      Config.logline = defaults.loglineJson;
+    }
+
+    if (!useJson && Config._logline === defaults.loglineJson) {
+      Config.logline = defaults.logline;
+    }
 
     if (Config._logline) {
       Config._logline.json = useJson;

@@ -1,7 +1,7 @@
 const each = require('jest-each').default;
 const Logger = require('../src/logger/logger');
 const { Config } = require('../src/config');
-const { logger } = require('../src');
+const logger = require('../src');
 
 const methods = Object.keys(logger.levels);
 
