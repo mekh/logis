@@ -3,7 +3,10 @@
  * @typedef ConfigParams
  * @property {string} [loglevel]
  * @property {boolean} [colorize]
+ * @property {boolean} [json]
  * @property {function(*): *} [format]
+ * @property {Logline} [logline]
+ * @property {Primitives} [primitives]
  */
 
 const { colors } = require('../common/levels');
@@ -159,6 +162,9 @@ class Logger {
     this.loglevel = config.loglevel;
     this.colorize = config.colorize;
     this.format = config.format;
+    this.logline = config.logline;
+    this.primitives = config.primitives;
+    this.json = config.json;
 
     return this;
   }
