@@ -1,7 +1,7 @@
 const each = require('jest-each').default;
 const Logger = require('../src/logger/logger');
-const { Config } = require('../src/config');
 const logger = require('../src');
+const { DEFAULT_STORAGE_LIMIT } = require('../src/constants');
 
 const methods = Object.keys(logger.levels);
 
@@ -26,10 +26,9 @@ describe('# Logger', () => {
   });
 
   it('should use the storage limit', () => {
-    const { storageLimit } = Config;
     const log1 = logger.getLogger('A');
 
-    for (let i = 0; i < storageLimit; i += 1) {
+    for (let i = 0; i < DEFAULT_STORAGE_LIMIT; i += 1) {
       logger.getLogger(i.toString());
     }
 

@@ -27,10 +27,6 @@ describe('# Config', () => {
       expect(Config.format).toBe(undefined);
     });
 
-    it('limit - should be default', () => {
-      expect(Config.storageLimit).toBe(100);
-    });
-
     it('logline - should be default', () => {
       expect(Config.logline).toBe(defaults.logline);
     });

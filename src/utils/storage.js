@@ -1,6 +1,6 @@
 const errors = require('../common/errors');
+const { DEFAULT_STORAGE_LIMIT } = require('../constants');
 
-const DEFAULT_STORAGE_LIMIT = 100;
 const loggers = [];
 
 /**

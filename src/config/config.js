@@ -12,10 +12,7 @@
 const Errors = require('../common/errors');
 const LogLevel = require('../logger/loglevel');
 const { defaults } = require('../formatter');
-
-const DEFAULT_LOG_LEVEL = 'info';
-const DEFAULT_USE_COLORS = false;
-const DEFAULT_USE_JSON = false;
+const { DEFAULT_LOG_LEVEL, DEFAULT_USE_JSON, DEFAULT_USE_COLORS } = require('../constants');
 
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
