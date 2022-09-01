@@ -2,6 +2,7 @@ const each = require('jest-each').default;
 const Logger = require('../src/logger/logger');
 const logger = require('../src');
 const { DEFAULT_STORAGE_LIMIT } = require('../src/constants');
+const { Logline, Primitives } = require('../src/formatter');
 
 const methods = Object.keys(logger.levels);
 
@@ -137,5 +138,28 @@ describe('# Logger', () => {
 
   it('should throw if format is not a function', () => {
     expect(() => { logger.getLogger().format = 'a'; }).toThrow();
+  });
+
+  it('should set/get logline', () => {
+    const log = logger.getLogger('123');
+    const logline = new Logline().add(() => 'bcd');
+
+    log.logline = logline;
+    expect(log.logline).toBe(logline);
+  });
+
+  it('should set/get primitives', () => {
+    const log = logger.getLogger('999');
+    const logPrimitives = new Primitives();
+
+    log.primitives = logPrimitives;
+    expect(log.primitives).toBe(logPrimitives);
+  });
+
+  it('should set/get json', () => {
+    const log = logger.getLogger('xyz');
+
+    log.json = true;
+    expect(log.json).toBe(true);
   });
 });
