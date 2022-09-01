@@ -38,28 +38,45 @@ class Logger {
   }
 
   /**
-   * All loggers should have the same log-string format,
-   * so no setters here
    * @return {Logline}
    */
   get logline() {
-    return Config.logline;
+    return this.config.logline;
   }
 
   /**
-   * Same as for logline
+   * @param {Logline} logline
+   */
+  set logline(logline) {
+    this.config.logline = logline;
+  }
+
+  /**
    * @return {Primitives}
    */
   get primitives() {
-    return Config.primitives;
+    return this.config.primitives;
   }
 
   /**
-   * Defines output format
+   * @param {Primitives} primitives
+   */
+  set primitives(primitives) {
+    this.config.primitives = primitives;
+  }
+
+  /**
    * @return {boolean}
    */
   get json() {
-    return Config.json;
+    return this.config.json;
+  }
+
+  /**
+   * @param {boolean} json
+   */
+  set json(json) {
+    this.config.json = json;
   }
 
   /**

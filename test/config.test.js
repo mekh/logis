@@ -73,16 +73,18 @@ describe('# Config', () => {
       expect(Config._format).toEqual(globalConfig.format);
       expect(Config._logline).toEqual(globalConfig.logline);
       expect(Config._primitives).toEqual(globalConfig.primitives);
+      expect(Config._json).toEqual(globalConfig.json);
     });
 
     it('should ignore undefined items', () => {
       Config.setGlobalConfig({});
 
-      expect(Config._loglevel).toEqual(globalConfig.loglevel);
-      expect(Config._colorize).toEqual(globalConfig.colorize);
-      expect(Config._format).toEqual(globalConfig.format);
-      expect(Config._logline).toEqual(globalConfig.logline);
-      expect(Config._primitives).toEqual(globalConfig.primitives);
+      expect(Config._loglevel).not.toBe(undefined);
+      expect(Config._colorize).not.toBe(undefined);
+      expect(Config._format).not.toBe(undefined);
+      expect(Config._logline).not.toBe(undefined);
+      expect(Config._primitives).not.toBe(undefined);
+      expect(Config._json).not.toBe(undefined);
     });
 
     it('should inherit global settings for instances', () => {
@@ -91,12 +93,9 @@ describe('# Config', () => {
       expect(config.loglevel).toEqual(globalConfig.loglevel);
       expect(config.colorize).toEqual(globalConfig.colorize);
       expect(config.format).toEqual(globalConfig.format);
-      // expect(config.logline).toEqual(globalConfig.logline);
-      // expect(config.primitives).toEqual(globalConfig.primitives);
-
-      expect(config.loglevel).toEqual(globalConfig.loglevel);
-      expect(config.colorize).toEqual(globalConfig.colorize);
-      expect(config.format).toEqual(globalConfig.format);
+      expect(config.logline).toEqual(globalConfig.logline);
+      expect(config.primitives).toEqual(globalConfig.primitives);
+      expect(config.json).toEqual(globalConfig.json);
     });
 
     it('logline - should not set undefined', () => {

@@ -1,6 +1,6 @@
 const errors = require('../common/errors');
-const { Config } = require('../config');
 
+const DEFAULT_STORAGE_LIMIT = 100;
 const loggers = [];
 
 /**
@@ -38,7 +38,7 @@ const addLogger = (category, logger) => {
     return;
   }
 
-  if (loggers.length >= Config.storageLimit) {
+  if (loggers.length >= DEFAULT_STORAGE_LIMIT) {
     loggers.shift();
   }
 
