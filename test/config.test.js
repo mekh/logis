@@ -290,6 +290,14 @@ describe('# Config', () => {
 
       expect(config.logline).toBe(defaults.logline);
     });
+
+    it('json - should set json=true to logline instance', () => {
+      const logline = new Logline({ json: false });
+      const conf = new Config({ logline });
+
+      conf.json = true;
+      expect(logline.json).toBe(true);
+    });
   });
 
   describe('# Validation', () => {

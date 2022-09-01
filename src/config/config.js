@@ -298,9 +298,7 @@ class Config {
       this.logline = defaults.logline;
     }
 
-    if (this._logline) {
-      this._logline.json = useJson;
-    }
+    this._logline.json = useJson;
   }
 
   get logline() {
