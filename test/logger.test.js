@@ -136,6 +136,10 @@ describe('# Logger', () => {
     expect(() => logger.configure({ })).not.toThrow();
   });
 
+  it('should not throw if config is undefined', () => {
+    expect(() => logger.configure()).not.toThrow();
+  });
+
   it('should use custom formatter', () => {
     const log = logger.getLogger();
     log.format = jest.fn();

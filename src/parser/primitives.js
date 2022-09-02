@@ -1,4 +1,4 @@
-const Primitive = require('./primitive');
+const { Primitive } = require('./primitive');
 
 class Primitives {
   static types = [

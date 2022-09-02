@@ -5,6 +5,10 @@ class Primitive {
    * @param {function(*): *} [params.formatFn]
    */
   constructor({ checkFn, formatFn }) {
+    if (typeof checkFn !== 'function') {
+      throw new TypeError('checkFn must be a function');
+    }
+
     this.checkFn = checkFn;
     this.formatFn = formatFn || ((data) => data);
   }
@@ -18,4 +22,6 @@ class Primitive {
   }
 }
 
-module.exports = Primitive;
+module.exports = {
+  Primitive,
+};

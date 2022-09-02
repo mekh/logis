@@ -281,7 +281,7 @@ declare namespace loggis {
         /**
          * Set the default configuration for all loggers
          */
-        configure(params: configure): logger;
+        configure(params?: configure): logger;
         /**
          * Get an existing logger by name or create and save a new one
          */
