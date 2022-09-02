@@ -5,7 +5,7 @@ class Primitive {
    * @param {function(*): *} [params.formatFn]
    */
   constructor({ checkFn, formatFn }) {
-    this.checkFn = checkFn || (() => false);
+    this.checkFn = checkFn;
     this.formatFn = formatFn || ((data) => data);
   }
 

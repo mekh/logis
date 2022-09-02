@@ -103,6 +103,9 @@ describe('# Logger', () => {
     });
 
   it('should accept multiple arguments of any types', () => {
+    const recursive = { prop: 1 };
+    recursive.rec = recursive;
+
     const args = [
       { toJSON: () => { throw new Error('OOPS!!!'); } },
       1,
@@ -110,10 +113,16 @@ describe('# Logger', () => {
       null,
       undefined,
       NaN,
-      function a() {},
       Symbol('symbol'),
+      function a() {},
+      () => {},
+      new Date(),
+      new Promise((res) => { res(); }),
+      new Error('errors'),
+      Buffer.from('xyz'),
       [1, 'a'],
       { a: 1 },
+      recursive,
     ];
 
     expect(() => logger.error(...args)).not.toThrow();
@@ -161,5 +170,26 @@ describe('# Logger', () => {
 
     log.json = true;
     expect(log.json).toBe(true);
+  });
+
+  it('should configure', () => {
+    const log = logger.getLogger('new-log');
+
+    const config = {
+      loglevel: 'warn',
+      colorize: true,
+      format: function format() {},
+      logline: new Logline(),
+      primitives: new Primitives(),
+      json: true,
+    };
+
+    log.configure(config);
+    expect(log.loglevel).toBe(config.loglevel);
+    expect(log.colorize).toBe(config.colorize);
+    expect(log.format).toBe(config.format);
+    expect(log.logline).toBe(config.logline);
+    expect(log.primitives).toBe(config.primitives);
+    expect(log.json).toBe(config.json);
   });
 });
