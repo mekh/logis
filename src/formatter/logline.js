@@ -42,7 +42,7 @@ class Logline {
    * @return {*}
    */
   buildLine(data) {
-    return data.join(this.separator);
+    return data.map(item => (item === undefined ? 'undefined' : item)).join(this.separator);
   }
 
   /**

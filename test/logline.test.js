@@ -63,4 +63,19 @@ describe('# Logline', () => {
 
     expect(result).toBe(JSON.stringify({ 0: data[0], 1: data[1], 2: data[2] }));
   });
+
+  it('should apply formatters', () => {
+    const message = { a: 'aaa', b: 'bbb', c: 'ccc' };
+    const fn1 = jest.fn().mockImplementation((msg) => msg.a);
+    const fn2 = jest.fn().mockImplementation((msg) => msg.b);
+    const fn3 = jest.fn().mockImplementation((msg) => msg.c);
+
+    logline.add(fn1).add(fn2).add(fn3);
+    const result = logline.build(message);
+
+    expect(fn1).toBeCalledWith(message);
+    expect(fn2).toBeCalledWith(message);
+    expect(fn3).toBeCalledWith(message);
+    expect(result).toBe('aaa bbb ccc');
+  });
 });

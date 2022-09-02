@@ -74,4 +74,6 @@ class Primitives {
   }
 }
 
-module.exports = Primitives;
+module.exports = {
+  Primitives,
+};

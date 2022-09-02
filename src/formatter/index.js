@@ -5,7 +5,7 @@ const logline = new Logline();
 const loglineJson = new Logline({ json: true });
 const primitives = new Primitives();
 
-const wrap = data => (data ? `[${data}]` : '');
+const wrap = data => `[${data}]`;
 
 /**
  * The message argument in 'add' method is an instance of Message

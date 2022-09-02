@@ -88,4 +88,6 @@ class Parser {
   }
 }
 
-module.exports = Parser;
+module.exports = {
+  Parser,
+};
