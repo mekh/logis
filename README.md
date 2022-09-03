@@ -1,4 +1,4 @@
-# loggis [![build](https://travis-ci.org/mekh/logis.svg?branch=main)](https://travis-ci.org/github/mekh/logis) [![Coverage Status](https://coveralls.io/repos/github/mekh/logis/badge.svg?branch=main)](https://coveralls.io/github/mekh/logis?branch=main)
+# loggis [![Tests](https://github.com/mekh/logis/actions/workflows/test.yml/badge.svg)](https://github.com/mekh/logis/actions/workflows/test.yml) [![Coverage Status](https://coveralls.io/repos/github/mekh/logis/badge.svg?branch=main)](https://coveralls.io/github/mekh/logis?branch=main)
 # WARNING
 ## This is a beta-version. It pretty much works, however not all tests have been performed, the documentation hasn't been updated, etc.
 A simple, lightweight,   console logger for Node.JS.
