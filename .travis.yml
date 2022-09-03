@@ -4,8 +4,8 @@ os:
   - windows
 sudo: false
 node_js:
+  - '16'
   - '14'
   - '12'
-  - '10'
 after_success:
   - npm run coveralls

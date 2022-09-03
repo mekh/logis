@@ -19,6 +19,11 @@ class Message {
     this.text = this.format(json);
   }
 
+  /**
+   * @param {boolean} json
+   * @return {any[]|string}
+   * @private
+   */
   format(json) {
     return json
       ? this.data

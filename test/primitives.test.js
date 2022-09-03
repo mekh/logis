@@ -60,5 +60,50 @@ describe('# Primitives', () => {
       expect(primitives.primitives[0].checkFn).toBe(checkFn);
       expect(primitives.primitives[0].formatFn).toBe(formatFn);
     });
+
+    it('should return undefined', () => {
+      expect(primitives.get(1)).toBe(undefined);
+    });
+
+    it('should return proper primitives', () => {
+      primitives
+        .add(item => typeof item === 'number')
+        .add(item => typeof item === 'undefined')
+        .add(item => typeof item === 'number', num => num.toFixed(2))
+        .add(item => typeof item === 'string')
+        .add(item => typeof item === 'number');
+
+      expect(primitives.get(1)).toHaveLength(3);
+      expect(primitives.get('1')).toHaveLength(1);
+      expect(primitives.get(undefined)).toHaveLength(1);
+    });
+
+    it('should apply proper primitives', () => {
+      const formatNumber1 = jest.fn((num) => num.toFixed(2));
+      const formatNumber2 = jest.fn((num) => num * 100);
+      const formatStr1 = jest.fn((str) => str.toUpperCase());
+      const formatStr2 = jest.fn((str) => `---${str}---`);
+
+      primitives.add(Primitives.typeof('number'), formatNumber1);
+      primitives.add(Primitives.typeof('string'), formatStr1);
+      primitives.add(Primitives.typeof('number'), formatNumber2);
+      primitives.add(Primitives.typeof('string'), formatStr2);
+
+      const num = primitives.apply(1.123);
+      const str = primitives.apply('abc');
+
+      expect(formatNumber1).toHaveBeenCalledTimes(1);
+      expect(formatNumber1).toHaveBeenCalledWith(1.123);
+      expect(formatNumber2).not.toHaveBeenCalled();
+
+      expect(formatStr1).toHaveBeenCalledTimes(1);
+      expect(formatStr1).toHaveBeenCalledWith('abc');
+
+      expect(formatStr2).toHaveBeenCalledTimes(1);
+      expect(formatStr2).toHaveBeenCalledWith('ABC');
+
+      expect(num).toStrictEqual('1.12');
+      expect(str).toStrictEqual('---ABC---');
+    });
   });
 });
