@@ -59,9 +59,6 @@ logFn();
 The default configuration can be set either through the `configure` method or the environment variables.
 Each logger instance can be configured individually by setting an instance properties like `level`, `colorize`, etc.
 
-The environment variables have higher priority than the configuration via the `configure` method.
-I.e. if the `LOG_LEVEL` variable set to `debug`, calling the `configure({ loglevel: 'trace' })` won't change the default logging level.
-
 ## Environment variables
 The default configuration can be set through the environment variables.
 
@@ -75,6 +72,7 @@ The default configuration can be set through the environment variables.
 The default configuration can be passed to the `configure` method.
 It accepts the following parameters:
 - loglevel - the default logging level, valid values are `error`, `warn`, `info`, `debug`, and `trace`
+- json - use json output
 - colorize - use colored output
 - format - (DEPRECATED) custom message formatter
 - logline - the Logline instance
@@ -116,36 +114,39 @@ For example, if you want to:
 You can do it like this:
 ```js
 // ./src/logger/index.js
-const logger = require('loggis');
+const loggis = require('loggis');
 
-const customFormatter = ({ args, level, logger }) => {
-  return JSON.stringify({
-    date: new Date(),
-    module: module.parent.filename.replace(process.cwd(), ''),
-    category: logger.category,
-    level,
-    message: args.join(', '),
-  });
-};
+const customFormatter = ({ args, level, logger }) => JSON.stringify({
+  date: new Date(),
+  module: module.parent.filename.replace(process.cwd(), ''),
+  category: logger.category,
+  level,
+  data: args,
+});
 
-logger.configure({ format: customFormatter });
+loggis.configure({ format: customFormatter });
 
-module.exports = logger;
+module.exports = loggis;
 
 // ./src/app.js
 const logger = require('./logger');
 
 const log = logger.getLogger('MY_APP');
-log.error('one', 'two', 'three');
+
+log.info('the configuration is =>', {
+  level: logger.loglevel,
+  color: logger.colorize,
+  json: logger.json,
+});
 
 // ./index.js
 require('./src/app');
 
-// {"date":"2020-10-04T09:10:42.276Z","module":"/src/app.js","category":"MY_APP","level":"error","message":"one, two, three"}
+// {"date":"2022-09-03T08:17:26.549Z","module":"/app.js","category":"MY_APP","level":"info","data":["the configuration is =>",{"level":"info","color":false,"json":false}]}
 ````
 
 # Usage examples
-Set the default configuration, get a logger, use it
+### Set the default configuration, get a logger, use it
 ```js
 const logger = require('loggis')
 
@@ -154,34 +155,55 @@ const log = logger.configure({ loglevel: 'debug' }).getLogger('MY_APP');
 log.error('easy to log error')
 log.debug('easy to log debug');
 log.trace('will not be printed, since the log level is DEBUG');
-// [2022-09-03T08:20:00.640Z] [ERROR] [123] [MY_APP] [/app/test_log.js||-:5] easy to log error
-// [2022-09-03T08:20:00.643Z] [DEBUG] [123] [MY_APP] [/app/test_log.js||-:6] easy to log debug
+// [2022-09-03T08:17:26.549Z] [ERROR] [123] [MY_APP] [/app/test_log.js||-:5] easy to log error
+// [2022-09-03T08:17:26.554Z] [DEBUG] [123] [MY_APP] [/app/test_log.js||-:6] easy to log debug
 
 ```
 
-The default an individual configuration
+### JSON format
+```js
+const logger = require('loggis');
+
+logger.configure({ json: true });
+
+logger.info('user info =>', { id: 1, name: 'John', email: 'mail@g.co' });
+
+// {"date":"2022-09-03T08:17:26.549Z","level":"info","pid":123,"category":"json","filename":"/app/test_log.js","function":"-","line":5,"data":["user info =>",{"id":1,"name":"John","email":"mail@g.co"}]}
+
+```
+
+### The default an individual configuration
 ```js
 const logger = require('loggis');
 
 logger.configure({ loglevel: 'warn', colorize: true });
 
-const logDebug = logger.getLogger('A'); // the default configuration will be applied
-const logTrace = logger.getLogger('B');
+const logLine = logger.getLogger('line'); // the default configuration will be applied
+const logJson = logger.getLogger('json');
 
 // configure an instance
-logTrace.loglevel = 'trace';
-logTrace.colorize = false;
+logJson.loglevel = 'trace';
+logJson.json = true;
+logJson.colorize = false;
 
-logDebug.trace('will not be printed since the default loglevel is warn');
-logTrace.trace('the configuration is =>', {
-  loglevel: logTrace.loglevel,
-  colorize: logTrace.colorize,
+logLine.info('the configuration is =>', {
+  level: logLine.loglevel,
+  color: logLine.colorize,
+  json: logLine.json,
 });
 
-// [2022-09-03T08:21:05.200Z] [TRACE] [123] [B] [/app/test_log.js||-:13] the configuration is => {"loglevel":"trace","colorize":false}
+logJson.trace('the configuration is =>', {
+  level: logJson.loglevel,
+  color: logJson.colorize,
+  json: logJson.json,
+});
+
+
+// [2022-09-03T08:17:26.549Z] [WARN] [123] [line] [/app/test_log.js||-:13] the configuration is => {"level":"warn","color":true,"json":false}
+// {"date":"2022-09-03T08:17:26.554Z","level":"trace","pid":123,"category":"json","filename":"/app/test_log.js","function":"-","line":19,"data":["the configuration is =>",{"level":"trace","color":false,"json":true}]}
 ````
 
-ESM
+# ESM
 ```js
 import logger from 'loggis';
 
