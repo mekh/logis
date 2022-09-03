@@ -17,7 +17,7 @@ A perfect choice for Kubernetes, Docker, and other systems that collect logs dir
 - automatic circular structures handling
 - tracing information - caller's file and function name, and even line number where the log method has been called
 - robust configuration
-- optionally - colored output
+- colored output
 
 # Installation
 ```bash
@@ -29,7 +29,7 @@ The logger can be user right out of the box, i.e. it does not require any config
 The default settings are:
 - loglevel: info
 - colorize: false
-- logline: [ISO timestamp] [level] [process.pid] [category] [filename] message
+- logline: [ISO timestamp] [level] [process.pid] [category] [filename||functionName:lineNumber] message
 - primitives
   - Function => <Function ${function.name || 'anonymous'}>
   - Date instance => Date.toISOString()
@@ -38,13 +38,21 @@ The default settings are:
   - Error instance => error properties/values concatenated by a new line
 
 ```js
+// /app/test_log.js
 const logger = require('loggis');
 
-logger.info('its simple');
-logger.error('this', ['will', 'be'], { serialized: { into: 'a string'  } })
-logger.trace('will not be printed since the default loglevel is info')
-// [2020-10-04T09:10:42.276Z] [INFO] [16616] its simple
-// [2020-10-04T09:10:42.276Z] [ERROR] [16616] this ["will","be"] {"serialized":{"into":"a string"}}
+const logFn = () => {
+  logger.info('its simple');
+  logger.error('this', ['will', 'be'], { serialized: { into: 'a string' } });
+
+  // won't be printed since the default loglevel is info
+  logger.trace('trace info');
+};
+
+logFn();
+// [2022-09-03T08:17:26.549Z] [INFO] [123] [default] [/app/test_log.js||logFn:4] its simple
+// [2022-09-03T08:17:26.554Z] [ERROR] [123] [default] [/app/test_log.js||logFn:5] this ["will","be"] {"serialized":{"into":"a string"}}
+
 ```
 
 # Configuration
@@ -57,10 +65,11 @@ I.e. if the `LOG_LEVEL` variable set to `debug`, calling the `configure({ loglev
 ## Environment variables
 The default configuration can be set through the environment variables.
 
-| Name          | Type    | Default value | Description                       |
-|---------------|---------|---------------|-----------------------------------|
-| LOG_LEVEL     | String  | info          | The default logging level         |
-| LOG_COLORS    | Boolean | false         | Turns on/off the colorized output |
+| Name       | Type    | Default value | Description                       |
+|------------|---------|---------------|-----------------------------------|
+| LOG_LEVEL  | String  | info          | The default logging level         |
+| LOG_JSON   | Boolean | false         | Turns on/off JSON output          |
+| LOG_COLORS | Boolean | false         | Turns on/off the colorized output |
 
 ## Configure options
 The default configuration can be passed to the `configure` method.
@@ -71,9 +80,13 @@ It accepts the following parameters:
 - logline - the Logline instance
 - primitives - the Primitives instance
 
-The same parameters, except logline and primitives, can be used for an individual configuration of a logger.
+The same parameters can be used for an individual configuration of a logger.
 
 ## Circulars
+It's safe to pass any kind of arguments to the log functions, including Express requests, Sequelize models, etc.
+The logger automatically detects circular structures and replaces them by string references.
+The reference is a path within an object.
+
 ```js
 const logger = require('loggis');
 
@@ -141,8 +154,9 @@ const log = logger.configure({ loglevel: 'debug' }).getLogger('MY_APP');
 log.error('easy to log error')
 log.debug('easy to log debug');
 log.trace('will not be printed, since the log level is DEBUG');
-// [2020-10-04T09:10:42.276Z] [ERROR] [16959] [MY_APP] easy to log error
-// [2020-10-04T09:10:42.276Z] [DEBUG] [16959] [MY_APP] easy to log debug
+// [2022-09-03T08:20:00.640Z] [ERROR] [123] [MY_APP] [/app/test_log.js||-:5] easy to log error
+// [2022-09-03T08:20:00.643Z] [DEBUG] [123] [MY_APP] [/app/test_log.js||-:6] easy to log debug
+
 ```
 
 The default an individual configuration
@@ -163,7 +177,8 @@ logTrace.trace('the configuration is =>', {
   loglevel: logTrace.loglevel,
   colorize: logTrace.colorize,
 });
-// [TRACE] [16959] [B] indivial configuration is => {"loglevel":"trace","colorize":false}
+
+// [2022-09-03T08:21:05.200Z] [TRACE] [123] [B] [/app/test_log.js||-:13] the configuration is => {"loglevel":"trace","colorize":false}
 ````
 
 ESM
@@ -172,3 +187,8 @@ import logger from 'loggis';
 
 const log = logger.getLogger('MY_APP');
 ```
+```js
+import { getLogger } from 'loggis';
+
+const log = getLogger('MY_APP')
+````
