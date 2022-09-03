@@ -1,38 +1,38 @@
+/**
+ * @typedef ConfigParams
+ * @property {boolean} [json]
+ * @property {string} [loglevel]
+ * @property {boolean} [colorize]
+ * @property {function(*): *} [format]
+ * @property {object} [logline]
+ * @property {object} [primitives]
+ */
+
 const Logger = require('./logger/logger');
 const storage = require('./utils/storage');
-const { configure } = require('./config');
+const { Config } = require('./config');
+const { defaults, Primitives, Logline } = require('./formatter');
+
+const logger = new Logger({ storage, config: new Config() });
 
 /**
- * Change the global configuration
- * @param {Logger} logger
- * @param {object} options
+ * @type {{Logline: Logline, Primitives: Primitives}}
+ */
+logger.formatters = {
+  Primitives,
+  Logline,
+};
+
+/**
+ * Allow to change global settings
+ * @param {ConfigParams} [config]
  * @return {Logger}
  */
-const config = (logger, options) => {
-  configure(options);
+logger.configure = (config = {}) => {
+  Config.setGlobalConfig({ ...defaults, ...config });
+  logger.config = new Config();
+
   return logger;
 };
 
-/**
- * Get stored or a new logger
- * @param {string} [category]
- * @return {Logger}
- */
-const getLogger = (category) => {
-  const stored = storage.getLogger(category);
-  if (stored) {
-    return stored;
-  }
-
-  const newLogger = new Logger(category);
-  newLogger.getLogger = getLogger;
-  newLogger.configure = config.bind(null, newLogger);
-
-  if (category) {
-    storage.addLogger(category, newLogger);
-  }
-
-  return newLogger;
-};
-
-module.exports = getLogger();
+module.exports = logger;

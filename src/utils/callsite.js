@@ -1,18 +1,23 @@
 /**
+ * @link https://v8.dev/docs/stack-trace-api
  * @returns {{fileName: string, functionName: string, lineNumber: number}}
  */
 const getCallsite = () => {
-  const bkp = Error.prepareStackTrace;
+  const bkpFn = Error.prepareStackTrace;
+  const bkpLimit = Error.stackTraceLimit;
+
   Error.prepareStackTrace = (_, stack) => stack;
+  Error.stackTraceLimit = 4;
 
   // stack items: 0 - error, 1 - this file, 2 - loggis, 3 - caller
   const caller = new Error().stack[3];
-  Error.prepareStackTrace = bkp;
+  Error.prepareStackTrace = bkpFn;
+  Error.stackTraceLimit = bkpLimit;
 
   return {
-    fileName: caller ? caller.getFileName() : 'unknown',
-    functionName: caller ? caller.getFunctionName() : 'anonymous',
-    lineNumber: caller ? caller.getLineNumber() : -1,
+    fileName: caller.getFileName(),
+    functionName: caller.getFunctionName(),
+    lineNumber: caller.getLineNumber(),
   };
 };
 

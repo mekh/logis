@@ -1,4 +1,4 @@
-const Primitive = require('./primitive');
+const { Primitive } = require('./primitive');
 
 class Primitives {
   static types = [
@@ -28,7 +28,11 @@ class Primitives {
   }
 
   constructor() {
+    /**
+     * @type {Primitive[]}
+     */
     this.primitives = [];
+    this.types = Primitives.types;
   }
 
   /**
@@ -37,16 +41,28 @@ class Primitives {
    * @returns {Primitives}
    */
   add(checkFn, formatFn) {
-    this.primitives.unshift(new Primitive({ checkFn, formatFn }));
+    this.primitives.push(new Primitive({ checkFn, formatFn }));
     return this;
   }
 
   /**
    * @param {*} data
-   * @returns {Primitive|undefined}
+   * @returns {Primitive[]|undefined}
    */
   get(data) {
-    return this.primitives.find(item => item.is(data));
+    const result = this.primitives.filter(item => item.is(data));
+
+    return result.length ? result : undefined;
+  }
+
+  /**
+   * @param {*} data
+   * @return {*}
+   */
+  apply(data) {
+    const primitives = this.primitives.filter(item => item.is(data));
+
+    return primitives.reduce((acc, primitive) => primitive.format(acc), data);
   }
 
   /**
@@ -54,8 +70,10 @@ class Primitives {
    * @returns {boolean}
    */
   isPrimitive(data) {
-    return data === null || Primitives.types.includes(typeof data) || this.get(data);
+    return data === null || this.types.includes(typeof data);
   }
 }
 
-module.exports = Primitives;
+module.exports = {
+  Primitives,
+};

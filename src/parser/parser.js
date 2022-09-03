@@ -7,16 +7,24 @@ class Parser {
    * @returns {*[]}
    */
   static parseArray(arr, primitives) {
-    return arr.map(item => new Parser(primitives).parse(item));
+    return new Parser(primitives).parseArray(arr);
   }
 
   /**
    * @param {Primitives} primitives
    */
   constructor(primitives) {
-    this.primiteves = primitives;
+    this.primitives = primitives;
 
     this.references = new References();
+  }
+
+  /**
+   * @param {*[]} arr
+   * @returns {*[]}
+   */
+  parseArray(arr) {
+    return arr.map(item => this.parseMessage(item));
   }
 
   /**
@@ -24,68 +32,62 @@ class Parser {
    * @param {string} [path]
    * @returns {*}
    */
-  parse(message, path) {
+  parseMessage(message, path) {
     const ref = this.references.get(message);
     if (ref) {
       return ref;
     }
 
-    const data = this.parsePrimitive(message);
-    if (this.primiteves.isPrimitive(data)) {
+    const data = this.primitives.apply(message);
+    if (this.primitives.isPrimitive(data)) {
       return data;
     }
 
     this.references.set(message, path);
 
-    return this.parseStructure(data);
+    return this.handleStructure(data);
   }
 
   /**
-   * @param {*} data
-   * @returns {*}
+   * @param {object|*[]} data
+   * @returns {object|*[]}
    * @private
    */
-  parsePrimitive(data) {
-    const primitive = this.primiteves.get(data);
-
-    return primitive ? primitive.format(data) : data;
-  }
-
-  /**
-   * @param {object} data
-   * @returns {object}
-   */
-  parseStructure(data) {
+  handleStructure(data) {
     const handler = Array.isArray(data)
-      ? this.parseArray
-      : this.parseObject;
+      ? this.handleArray
+      : this.handleObject;
 
     return handler.call(this, data);
   }
 
   /**
-   * @param {[]}data
-   * @returns {[]}
+   * @param {*[]}data
+   * @returns {*[]}
+   * @private
    */
-  parseArray(data) {
+  handleArray(data) {
     const { path } = this.references;
 
-    return data.map((item, idx) => this.parse(item, `${path}[${idx}]`));
+    return data.map((item, idx) => this.parseMessage(item, `${path}[${idx}]`));
   }
 
   /**
    * @param {object} data
    * @returns {object}
+   * @private
    */
-  parseObject(data) {
+  handleObject(data) {
     const { path } = this.references;
 
     return Object.entries(data).reduce(
       (acc, [k, v]) => (
-        { ...acc, [k]: this.parse(v, [path, k].filter(Boolean).join('.')) }),
+        { ...acc, [k]: this.parseMessage(v, [path, k].filter(Boolean).join('.')) }),
       {},
     );
   }
 }
 
-module.exports = Parser;
+module.exports = {
+  Parser,
+};

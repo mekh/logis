@@ -17,6 +17,7 @@ module.exports = {
   env: {
     'jest/globals': true,
   },
+  ignorePatterns: ['**/*.ts'],
   parserOptions: {
     ecmaVersion: 2022,
   },

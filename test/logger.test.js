@@ -1,7 +1,8 @@
 const each = require('jest-each').default;
 const Logger = require('../src/logger/logger');
-const { config } = require('../src/config');
 const logger = require('../src');
+const { DEFAULT_STORAGE_LIMIT } = require('../src/constants');
+const { Logline, Primitives } = require('../src/formatter');
 
 const methods = Object.keys(logger.levels);
 
@@ -26,10 +27,9 @@ describe('# Logger', () => {
   });
 
   it('should use the storage limit', () => {
-    const { storageLimit } = config;
     const log1 = logger.getLogger('A');
 
-    for (let i = 0; i < storageLimit; i += 1) {
+    for (let i = 0; i < DEFAULT_STORAGE_LIMIT; i += 1) {
       logger.getLogger(i.toString());
     }
 
@@ -37,7 +37,17 @@ describe('# Logger', () => {
     expect(log1).not.toBe(log2);
   });
 
-  it('should call console.log in all log methods', () => {
+  it('default logger - should call console.log in all log methods', () => {
+    const { loglevel } = logger;
+    logger.loglevel = 'trace';
+
+    methods.forEach((method) => logger[method]('a'));
+
+    expect(print).toBeCalledTimes(methods.length);
+    logger.loglevel = loglevel;
+  });
+
+  it('getLogger - should call console.log in all log methods', () => {
     const log = logger.getLogger();
     log.loglevel = 'trace';
 
@@ -55,10 +65,10 @@ describe('# Logger', () => {
 
   it('should set colorize', () => {
     const log = logger.getLogger();
-    log.useColors = false;
+    log.colorize = false;
     log.colorize = true;
 
-    expect(log.useColors).toBe(true);
+    expect(log.colorize).toBe(true);
   });
 
   it('should throw if non-boolean is passed', () => {
@@ -66,61 +76,10 @@ describe('# Logger', () => {
     expect(() => { log.colorize = 'a'; }).toThrow();
   });
 
-  it('should return useColors', () => {
-    const log = logger.getLogger();
-    log.useColors = 'z';
-
-    expect(log.colorize).toBe('z');
-  });
-
-  it('should return default useColors', () => {
-    const log = logger.getLogger();
-    log.useColors = null;
-
-    expect(log.colorize).toBe(config.useColors);
-  });
-
-  it('should return default useTimestamp', () => {
-    const log = logger.getLogger();
-
-    expect(log.timestamp).toBe(true);
-    expect(log.timestamp).toBe(config.timestamp);
-  });
-
-  it('should set timestamp via config value', () => {
-    config.timestamp = false;
-    const log = logger.getLogger();
-
-    expect(log.timestamp).toBe(false);
-    expect(log.timestamp).toBe(config.timestamp);
-  });
-
-  it('should set timestamp via env', () => {
-    process.env.LOG_TIMESTAMP = 'false';
-    const log = logger.getLogger();
-
-    expect(log.timestamp).toBe(false);
-    expect(log.timestamp).toBe(config.timestamp);
-  });
-
   it('should handle Error objects', () => {
     logger.info(new Error('error_message'));
 
     expect(print).toBeCalledWith(expect.stringContaining('error_message'));
-  });
-
-  it('should throw if an timestamp value is not a boolean', () => {
-    expect(() => { logger.timestamp = 'a'; }).toThrow();
-  });
-
-  it('should not print the timestamp', () => {
-    const log = logger.getLogger();
-    log.timestamp = false;
-
-    const date = new Date().toISOString().slice(0, 10);
-    log.error('abc');
-
-    expect(print).not.toBeCalledWith(expect.stringContaining(date));
   });
 
   it('should return the same logger', () => {
@@ -144,6 +103,9 @@ describe('# Logger', () => {
     });
 
   it('should accept multiple arguments of any types', () => {
+    const recursive = { prop: 1 };
+    recursive.rec = recursive;
+
     const args = [
       { toJSON: () => { throw new Error('OOPS!!!'); } },
       1,
@@ -151,10 +113,16 @@ describe('# Logger', () => {
       null,
       undefined,
       NaN,
-      function a() {},
       Symbol('symbol'),
+      function a() {},
+      () => {},
+      new Date(),
+      new Promise((res) => { res(); }),
+      new Error('errors'),
+      Buffer.from('xyz'),
       [1, 'a'],
       { a: 1 },
+      recursive,
     ];
 
     expect(() => logger.error(...args)).not.toThrow();
@@ -168,6 +136,10 @@ describe('# Logger', () => {
     expect(() => logger.configure({ })).not.toThrow();
   });
 
+  it('should not throw if config is undefined', () => {
+    expect(() => logger.configure()).not.toThrow();
+  });
+
   it('should use custom formatter', () => {
     const log = logger.getLogger();
     log.format = jest.fn();
@@ -179,5 +151,49 @@ describe('# Logger', () => {
 
   it('should throw if format is not a function', () => {
     expect(() => { logger.getLogger().format = 'a'; }).toThrow();
+  });
+
+  it('should set/get logline', () => {
+    const log = logger.getLogger('123');
+    const logline = new Logline().add(() => 'bcd');
+
+    log.logline = logline;
+    expect(log.logline).toBe(logline);
+  });
+
+  it('should set/get primitives', () => {
+    const log = logger.getLogger('999');
+    const logPrimitives = new Primitives();
+
+    log.primitives = logPrimitives;
+    expect(log.primitives).toBe(logPrimitives);
+  });
+
+  it('should set/get json', () => {
+    const log = logger.getLogger('xyz');
+
+    log.json = true;
+    expect(log.json).toBe(true);
+  });
+
+  it('should configure', () => {
+    const log = logger.getLogger('new-log');
+
+    const config = {
+      loglevel: 'warn',
+      colorize: true,
+      format: function format() {},
+      logline: new Logline(),
+      primitives: new Primitives(),
+      json: true,
+    };
+
+    log.configure(config);
+    expect(log.loglevel).toBe(config.loglevel);
+    expect(log.colorize).toBe(config.colorize);
+    expect(log.format).toBe(config.format);
+    expect(log.logline).toBe(config.logline);
+    expect(log.primitives).toBe(config.primitives);
+    expect(log.json).toBe(config.json);
   });
 });

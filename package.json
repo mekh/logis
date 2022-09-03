@@ -1,6 +1,6 @@
 {
   "name": "loggis",
-  "version": "2.1.1",
+  "version": "3.0.0",
   "description": "A simple and lightweight logger",
   "main": "src/index.js",
   "types": "src/index.d.ts",
@@ -8,7 +8,7 @@
     "test": "test"
   },
   "engines": {
-    "node": ">=10.0.0",
+    "node": ">=12.22.0",
     "npm": ">=6.0.0"
   },
   "exports": {
@@ -35,7 +35,19 @@
     "warn",
     "info",
     "debug",
-    "trace"
+    "trace",
+    "k8s",
+    "kubernetes",
+    "fluentd",
+    "syslog",
+    "graylog",
+    "gelf",
+    "logentries",
+    "awslogs",
+    "ewt",
+    "docker",
+    "swarm",
+    "stdout"
   ],
   "author": "Alexandr V.Mekh",
   "license": "MIT",
@@ -44,12 +56,11 @@
   },
   "homepage": "https://github.com/mekh/logis#readme",
   "devDependencies": {
-    "@jest/console": "^29.0.1",
-    "coveralls": "^3.1.0",
+    "coveralls": "^3.1.1",
     "eslint": "^8.23.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jest": "^26.8.7",
+    "eslint-plugin-jest": "^27.0.1",
     "husky": "^4.3.0",
     "jest": "^29.0.1",
     "jest-each": "^29.0.1"

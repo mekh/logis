@@ -3,21 +3,21 @@ const errors = require('../common/errors');
 
 /**
  * Check if a log level exists in the levels list
- * @param {logLevelString} loglevel
+ * @param {string} loglevel
  * @return {boolean}
  */
-const hasLevel = loglevel => Object.keys(logLevels).includes(loglevel.toLowerCase());
+const hasLevel = (loglevel = '') => Object.keys(logLevels).includes(loglevel.toLowerCase());
 
 /**
  * Check if a given log level is valid
- * @param {logLevelString} loglevel
+ * @param {string} loglevel
  * @return {boolean}
  */
 const isValidLevel = loglevel => typeof loglevel === 'string' && hasLevel(loglevel);
 
 /**
  * Check if a log level is valid, throw TypeError if it isn't
- * @param {logLevelString} loglevel
+ * @param {string} loglevel
  */
 const assertLogLevel = loglevel => {
   if (!isValidLevel(loglevel)) {

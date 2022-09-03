@@ -1,28 +1,37 @@
 class Message {
   /**
-   * @param {Logger} logger
+   * @param {boolean} json
+   * @param {string} category
    * @param {string} level
-   * @param {*[]}items
+   * @param {*[]} data
    * @param {object} callsite
    */
-  constructor({ logger, level, items, callsite }) {
+  constructor({ json, category, level, data, callsite }) {
     this.date = new Date();
-    this.timestamp = logger.timestamp;
     this.pid = process.pid;
-    this.items = items;
+    this.data = data;
     this.level = level;
-    this.category = logger.category || 'default';
+    this.category = category;
     this.fileName = callsite.fileName;
     this.lineNumber = callsite.lineNumber;
     this.functionName = callsite.functionName;
+
+    this.text = this.format(json);
   }
 
   /**
-   * @param {Formatter} formatter
-   * @returns {*}
+   * @param {boolean} json
+   * @return {any[]|string}
+   * @private
    */
-  format(formatter) {
-    return formatter.format(this);
+  format(json) {
+    return json
+      ? this.data
+      : this.data.map(item => (
+        item && ['symbol', 'object'].includes(typeof item)
+          ? JSON.stringify(item)
+          : item
+      )).join(' ');
   }
 }
 

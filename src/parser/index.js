@@ -1,5 +1,5 @@
-const Parser = require('./parser');
-const Primitives = require('./primitives');
+const { Parser } = require('./parser');
+const { Primitives } = require('./primitives');
 
 module.exports = {
   Parser,
