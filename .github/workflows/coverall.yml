@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 14, 16, 18]
+        node: [14, 16, 18]
         os: [ubuntu-latest]
 
     steps:
@@ -35,7 +35,7 @@ jobs:
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.github_token }}
           flag-name: ${{matrix.os}}-node-${{ matrix.node }}
           parallel: true
 
@@ -46,5 +46,5 @@ jobs:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@master
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.github_token }}
           parallel-finished: true
