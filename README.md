@@ -120,7 +120,7 @@ const customFormatter = ({ args, level, logger }) => JSON.stringify({
   module: module.parent.filename.replace(process.cwd(), ''),
   category: logger.category,
   level,
-  data: args,
+  data: args, // be careful, it might crash if data is not compatible with JSON.stringify
 });
 
 loggis.configure({ format: customFormatter });
@@ -213,3 +213,43 @@ import { getLogger } from 'loggis';
 
 const log = getLogger('MY_APP')
 ````
+
+# Advance configuration
+
+Data processing includes two stages:
+- parsing each argument passed to the logger function
+- formatting the string that will be printed
+
+The parsing of each argument looks like this:
+- the parser checks if the formatting rules are defined for the given element
+- if such rules were found, they are sequentially applied to the element
+- if the element is an object, then for each nested element (array item, object key value), the entire chain is repeated
+
+This way it's possible to format any element at any level of nesting.
+
+An element for which one or more formatting rules are specified is called a primitive.
+
+The formatting rules for primitives are set by an instance of the `Primitives` class, the add method.
+This method takes two arguments:
+- the first one is a function that takes an element as an argument and returns a boolean if the element is the given primitive
+- the second one is a function that takes an element as an argument and returns the modified element
+
+The `Primitives` class is available in the `formatters` property of the logger.
+
+An instance of the `Primitives` class can be passed to the `configure` method of the logger as the `primitives` parameter.
+
+Example:
+```js
+const logger = require('../src');
+
+const primitives = new logger.formatters.Primitives()
+  .add(
+    (item) => typeof item === 'number',
+    (item) => item.toFixed(2),
+  );
+
+logger.configure({ primitives });
+
+logger.info(10.987654, '123.1589', { float: 1.5499, int: 1, str: '9.98765' });
+// ... 10.99 123.1589 {"float":"1.55","int":"1.00","str":"9.98765"}
+```
