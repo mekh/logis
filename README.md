@@ -6,17 +6,17 @@ A perfect choice for Kubernetes, Docker, and other systems that collect logs dir
 
 # Features
 - no dependencies
-- supports JSON
+- [ready for usage right out of the box](#quick-start)
+- [supports JSON](#json-format)
+- [global and individual configuration of loggers](#the-default-an-individual-configuration)
+- [automatic objects serialization](#quick-start)
+- [automatic circular structures handling](#circulars)
+- [robust configuration](#advance-configuration)
+- [tracing information - caller's file and function name, and even line number where the log method has been called](#quick-start)
+- [colored output](#configuration)
 - safe for any kind of data - Express req/res, Sequelize models, Error objects, etc.
-- ready for usage right out of the box
-- global and individual configuration of loggers
-- both **CommonJS** and **ESM** are supported
+- both **CommonJS** and [**ESM**](#esm) are supported
 - **Typescript** friendly
-- automatic objects serialization
-- automatic circular structures handling
-- tracing information - caller's file and function name, and even line number where the log method has been called
-- robust configuration
-- colored output
 
 # Installation
 ```bash
@@ -28,8 +28,8 @@ The logger can be user right out of the box, i.e. it does not require any config
 The default settings are:
 - loglevel: info
 - colorize: false
-- logline: [ISO timestamp] [level] [process.pid] [category] [filename||functionName:lineNumber] message
-- primitives
+- [logline](#logline): [ISO timestamp] [level] [process.pid] [category] [filename||functionName:lineNumber] message
+- [primitives](#primitives-default-configuration)
   - Function => <Function ${function.name || 'anonymous'}>
   - Date instance => Date.toISOString()
   - Promise instance => '<Promise>'
@@ -73,9 +73,9 @@ It accepts the following parameters:
 - loglevel - the default logging level, valid values are `error`, `warn`, `info`, `debug`, and `trace`
 - json - use json output
 - colorize - use colored output
-- format - (DEPRECATED) custom message formatter
-- logline - the Logline instance
-- primitives - the Primitives instance
+- [format](#custom-formatter-deprecated) - custom message formatter (DEPRECATED)
+- [logline](#logline) - the Logline instance
+- [primitives](#primitives) - the Primitives instance
 
 The same parameters can be used for an individual configuration of a logger.
 
@@ -96,7 +96,7 @@ logger.info(a);
 // ...{"a":1,"b":"[REF => .]","c":[1,{"d":2,"e":{"f":"abc"}}],"g":"[REF => c[1].e]"}
 ```
 
-## [DEPRECATED] Custom formatter
+## Custom formatter (deprecated)
 The formatter function accepts an object with the following properties:
 - args -  an array of arguments that was passed to a log method
 - level - logging level
@@ -202,20 +202,20 @@ logJson.trace('the configuration is =>', {
 // {"date":"2022-09-03T08:17:26.554Z","level":"trace","pid":123,"category":"json","filename":"/app/test_log.js","function":"-","line":19,"data":["the configuration is =>",{"level":"trace","color":false,"json":true}]}
 ````
 
-# ESM
-```js
+## ESM
+```ejs
 import logger from 'loggis';
 
 const log = logger.getLogger('MY_APP');
 ```
-```js
+```ejs
 import { getLogger } from 'loggis';
 
 const log = getLogger('MY_APP')
 ````
 
 # Advance configuration
-
+## Primitives
 Data processing includes two stages:
 - parsing each argument passed to the logger function
 - formatting the string that will be printed
@@ -264,7 +264,7 @@ For convenience, the `Primitives` class has two static methods - `typeof` and `i
   static instanceof<T, V = any>(cls: Cls<T>): ((data: V) => boolean);
 ```
 
-The default primitives are:
+#### Primitives default configuration
 ```js
 primitives
   .add(Primitives.typeof('function'),  (data) => `<Function ${data.name || 'anonymous'}>`)
@@ -277,8 +277,8 @@ primitives
 
 ```
 
-## Primitives usage examples
-### Filter sensitive data:
+### Primitives usage examples
+#### Filter sensitive data:
 ```js
 const logger = require('loggis');
 const { Primitives } = logger.formatters;
@@ -297,7 +297,7 @@ logger.info({ user: { id: 1, name: 'John', password: 'secret', card: { card_cvv:
 // ... {"user":{"id":1,"name":"John","password":"***","card":{"card_cvv":"***","card_number":"***"}}}
 ```
 
-### Sequelize models serialization
+#### Sequelize models serialization
 ```js
 const { Model } = require('sequelize');
 const logger = require('loggis');
@@ -305,3 +305,5 @@ const logger = require('loggis');
 const primitives = new logger.formatters.Primitives()
   .add(Primitives.instanceof(Model), (model) => model.toJSON())
 ```
+
+## Logline
