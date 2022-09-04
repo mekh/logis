@@ -337,26 +337,23 @@ logger.configure({ logline }).info(1, [2, 3], { 4: 5 }); // 1 [2,3] {"4":5}
 // --- Static text ---
 const logline = new Logline()
         .add(() => '[static_text]')
-        .add(message => `[${message.text}]`)
-        .join('');
+        .add(message => `[${message.text}]`);
 logger.configure({ logline }).info('log message'); // [static_text] [log message]
 
 // --- JOIN ---
 const logline = new Logline()
         .add(message => message.date.valueOf())
-        .add(message => message.level)
+        .add(message => message.level.toUpperCase())
         .add(message => message.pid)
         .add(message => message.text)
         .join(' | ');
-logger.configure({ logline }).info('log message'); // 1662193046549 | info | 1628157 | log message
+logger.configure({ logline }).info('log message'); // 1662193046549 | INFO | 123 | log message
 
 // --- JSON format ---
 const logline = new Logline()
         .add(message => ({ date: message.date }))
         .add(message => ({ message: message.text }));
 logger.configure({ json: true, logline }).info('user =>', { id: 1, name: 'John' }); // {"date":"2022-09-03T08:17:26.549Z","message":["user =>",{"id":1,"name":"John"}]}
-
-
 ```
 
 #### Default logline
