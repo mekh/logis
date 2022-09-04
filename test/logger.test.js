@@ -4,7 +4,7 @@ const logger = require('../src');
 const { DEFAULT_STORAGE_LIMIT } = require('../src/constants');
 const { Logline, Primitives } = require('../src/formatter');
 
-const methods = Object.keys(logger.levels);
+const methods = logger.level.levels;
 
 const print = jest.spyOn(console, 'log').mockImplementation();
 

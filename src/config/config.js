@@ -10,9 +10,9 @@
  */
 
 const Errors = require('../common/errors');
-const LogLevel = require('../logger/loglevel');
 const { defaults } = require('../formatter');
 const { DEFAULT_LOG_LEVEL, DEFAULT_USE_JSON, DEFAULT_USE_COLORS } = require('../constants');
+const { Loglevel } = require('../logger/loglevel');
 
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
@@ -72,9 +72,9 @@ class Config {
       return Config._loglevel;
     }
 
-    const env = envConfig.logLevel;
+    const env = envConfig.logLevel || '';
 
-    return LogLevel.isValidLevel(env)
+    return Loglevel.defaults.includes(env.toLowerCase())
       ? env.toLowerCase()
       : DEFAULT_LOG_LEVEL;
   }
@@ -87,7 +87,7 @@ class Config {
       return;
     }
 
-    LogLevel.assertLogLevel(level);
+    Loglevel.assert(level);
     Config._loglevel = level.toLowerCase();
   }
 
@@ -221,7 +221,7 @@ class Config {
       return;
     }
 
-    LogLevel.assertLogLevel(level);
+    Loglevel.assert(level);
     this._loglevel = level.toLowerCase();
   }
 

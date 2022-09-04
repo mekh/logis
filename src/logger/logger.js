@@ -8,13 +8,11 @@
  * @property {Logline} [logline]
  * @property {Primitives} [primitives]
  */
-
-const { colors } = require('../common/levels');
-const { assertLogLevel, isValidLevel } = require('./loglevel');
-const { levels, logLevels } = require('../common/levels');
 const { Parser } = require('../formatter');
 const { Message } = require('./message');
 const { Config } = require('../config');
+const { Loglevel } = require('./loglevel');
+const { colors } = require('../common/levels');
 const callsites = require('../utils/callsite');
 
 /**
@@ -25,16 +23,18 @@ class Logger {
    * @constructor
    * @param {string} [category] - category name
    * @param {object} config - logging level
-   * @param storage
+   * @param {object} storage
+   * @param {Loglevel} levels
    */
   constructor({
     category,
     config,
     storage,
+    level = Loglevel.create(),
   }) {
     this.category = category || 'default';
     this.config = config;
-    this.levels = logLevels;
+    this.level = level;
     this.storage = storage;
 
     this.setupLoggers();
@@ -174,7 +174,7 @@ class Logger {
    * @private
    */
   setupLoggers() {
-    Object.values(levels).forEach((level) => {
+    this.level.levels.forEach((level) => {
       this[level] = this.log.bind(this, level);
     });
   }
@@ -186,12 +186,7 @@ class Logger {
    * @private
    */
   shouldLog(loglevel) {
-    assertLogLevel(loglevel);
-
-    const messageLevel = this.levels[loglevel.toLowerCase()];
-    const loggerLevel = this.levels[this.loglevel];
-
-    return loggerLevel >= messageLevel;
+    return this.level.severity(this.loglevel) >= this.level.severity(loglevel);
   }
 
   /**
@@ -202,7 +197,7 @@ class Logger {
    * @private
    */
   log(level, ...args) {
-    const isValid = isValidLevel(level);
+    const isValid = this.level.isValid(level);
     if (isValid && !this.shouldLog(level)) {
       return;
     }
@@ -212,7 +207,7 @@ class Logger {
     }
 
     const text = this.format({ args, level, logger: this });
-    const output = this.colorize && isValidLevel(level) ? colors[level.toLowerCase()](text) : text;
+    const output = this.colorize && this.level.isValid(level) ? colors[level.toLowerCase()](text) : text;
 
     console.log(output);
     return text;

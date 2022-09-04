@@ -243,7 +243,7 @@ describe('# Config', () => {
     });
 
     it('loglevel - should throw', () => {
-      expect(() => { config.loglevel = 'a'; }).toThrow(errors.invalidLogLevel);
+      expect(() => { config.loglevel = 'a'; }).toThrow(TypeError);
     });
 
     it('colorize - should throw', () => {

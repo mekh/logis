@@ -1,49 +1,71 @@
-const loglevel = require('../src/logger/loglevel');
+const { Loglevel } = require('../src/logger/loglevel');
+const { DEFAULT_LOG_LEVELS } = require('../src/constants');
+
+const loglevel = Loglevel.create();
 
 describe('# Loglevel', () => {
+  it('should create an instance with custom levels', () => {
+    const levels = ['abc'];
+    const instance = Loglevel.create({ levels });
+
+    expect(instance.levels).toBe(levels);
+  });
+
+  it('should create an instance with default levels', () => {
+    const instance = Loglevel.create();
+
+    expect(instance.levels).toBe(DEFAULT_LOG_LEVELS);
+  });
+
+  it('should create an instance with default levels is an empty object', () => {
+    const instance = Loglevel.create({});
+
+    expect(instance.levels).toBe(DEFAULT_LOG_LEVELS);
+  });
+
   it('hasLevel - should return true', () => {
-    expect(loglevel.hasLevel('error')).toBe(true);
-    expect(loglevel.hasLevel('warn')).toBe(true);
-    expect(loglevel.hasLevel('info')).toBe(true);
-    expect(loglevel.hasLevel('debug')).toBe(true);
-    expect(loglevel.hasLevel('trace')).toBe(true);
+    expect(loglevel.isValid('error')).toBe(true);
+    expect(loglevel.isValid('warn')).toBe(true);
+    expect(loglevel.isValid('info')).toBe(true);
+    expect(loglevel.isValid('debug')).toBe(true);
+    expect(loglevel.isValid('trace')).toBe(true);
   });
 
-  it('hasLevel - should return false', () => {
-    expect(loglevel.hasLevel('xyz')).toBe(false);
+  it('isValid - should return false', () => {
+    expect(loglevel.isValid('xyz')).toBe(false);
   });
 
-  it('hasLevel - should handle undefined', () => {
-    expect(loglevel.hasLevel()).toBe(false);
+  it('isValid - should handle undefined', () => {
+    expect(loglevel.isValid()).toBe(false);
   });
 
   it('isValidLevel - should return false', () => {
-    expect(loglevel.isValidLevel()).toBe(false);
-    expect(loglevel.isValidLevel(1)).toBe(false);
-    expect(loglevel.isValidLevel(null)).toBe(false);
-    expect(loglevel.isValidLevel('xyz')).toBe(false);
+    expect(loglevel.isValid()).toBe(false);
+    expect(loglevel.isValid(1)).toBe(false);
+    expect(loglevel.isValid(null)).toBe(false);
+    expect(loglevel.isValid('xyz')).toBe(false);
   });
 
-  it('isValidLevel - should return true', () => {
-    expect(loglevel.isValidLevel('error')).toBe(true);
-    expect(loglevel.isValidLevel('warn')).toBe(true);
-    expect(loglevel.isValidLevel('info')).toBe(true);
-    expect(loglevel.isValidLevel('debug')).toBe(true);
-    expect(loglevel.isValidLevel('trace')).toBe(true);
+  it('isValid - should return true', () => {
+    expect(loglevel.isValid('error')).toBe(true);
+    expect(loglevel.isValid('warn')).toBe(true);
+    expect(loglevel.isValid('info')).toBe(true);
+    expect(loglevel.isValid('debug')).toBe(true);
+    expect(loglevel.isValid('trace')).toBe(true);
   });
 
   it('assertLogLevel - should throw', () => {
-    expect(() => loglevel.assertLogLevel()).toThrow();
-    expect(() => loglevel.assertLogLevel(1)).toThrow();
-    expect(() => loglevel.assertLogLevel(null)).toThrow();
-    expect(() => loglevel.assertLogLevel('xyz')).toThrow();
+    expect(() => loglevel.assertLevel()).toThrow();
+    expect(() => loglevel.assertLevel(1)).toThrow();
+    expect(() => loglevel.assertLevel(null)).toThrow();
+    expect(() => loglevel.assertLevel('xyz')).toThrow();
   });
 
-  it('assertLogLevel - should not throw', () => {
-    expect(() => loglevel.assertLogLevel('error')).not.toThrow();
-    expect(() => loglevel.assertLogLevel('warn')).not.toThrow();
-    expect(() => loglevel.assertLogLevel('info')).not.toThrow();
-    expect(() => loglevel.assertLogLevel('debug')).not.toThrow();
-    expect(() => loglevel.assertLogLevel('trace')).not.toThrow();
+  it('assertLevel - should not throw', () => {
+    expect(() => loglevel.assertLevel('error')).not.toThrow();
+    expect(() => loglevel.assertLevel('warn')).not.toThrow();
+    expect(() => loglevel.assertLevel('info')).not.toThrow();
+    expect(() => loglevel.assertLevel('debug')).not.toThrow();
+    expect(() => loglevel.assertLevel('trace')).not.toThrow();
   });
 });

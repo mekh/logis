@@ -356,29 +356,31 @@ logger.configure({ json: true, logline }).info('user =>', { id: 1, name: 'John' 
 ```
 
 #### Default logline
+
 ```js
 const wrap = data => `[${data}]`;
 
 logline
-  .add(message => wrap(message.date.toISOString()))
-  .add(message => wrap(message.level.toUpperCase()))
-  .add(message => wrap(message.pid))
-  .add(message => wrap(message.category))
-  .add(message => wrap(`${message.fileName}||${message.functionName || '-'}:${message.lineNumber || -1}`))
-  .add(message => message.text);
+        .add(message => wrap(message.date.toISOString()))
+        .add(message => wrap(message.severity.toUpperCase()))
+        .add(message => wrap(message.pid))
+        .add(message => wrap(message.category))
+        .add(message => wrap(`${message.fileName}||${message.functionName || '-'}:${message.lineNumber || -1}`))
+        .add(message => message.text);
 
 ```
 #### Default json logline
+
 ```js
 loglineJson
-  .add(message => ({ date: message.date.toISOString() }))
-  .add(message => ({ level: message.level }))
-  .add(message => ({ pid: message.pid }))
-  .add(message => ({ category: message.category }))
-  .add(message => ({ filename: message.fileName }))
-  .add(message => ({ function: message.functionName || '-' }))
-  .add(message => ({ line: message.lineNumber || -1 }))
-  .add(message => ({ data: message.text }));
+        .add(message => ({ date: message.date.toISOString() }))
+        .add(message => ({ level: message.severity }))
+        .add(message => ({ pid: message.pid }))
+        .add(message => ({ category: message.category }))
+        .add(message => ({ filename: message.fileName }))
+        .add(message => ({ function: message.functionName || '-' }))
+        .add(message => ({ line: message.lineNumber || -1 }))
+        .add(message => ({ data: message.text }));
 ```
 
 ## License
