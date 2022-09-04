@@ -1,5 +1,4 @@
 # loggis [![Tests](https://github.com/mekh/logis/actions/workflows/test.yml/badge.svg)](https://github.com/mekh/logis/actions/workflows/test.yml) [![Coverage Status](https://coveralls.io/repos/github/mekh/logis/badge.svg?branch=main)](https://coveralls.io/github/mekh/logis?branch=main)
-## ATTENTION: The documentation hasn't been fully updated yet. Please wait a bit.
 A simple, lightweight,   console logger for Node.JS.
 
 A perfect choice for Kubernetes, Docker, and other systems that collect logs directly from stdout.
