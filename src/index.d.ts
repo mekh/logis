@@ -138,17 +138,14 @@ declare class Primitives {
      * A list of primitive types from the logger's point of view
      */
     static types: primitives;
-
     /**
      * Check if `data` is a type of `type`
      */
-    static typeof<T>(type: string): ((data: T) => boolean);
-
+    static typeof<T = any>(type: string): ((data: T) => boolean);
     /**
      * Check if `data` is an instance of `cls`
      */
-    static instanceof<T, V>(cls: Cls<T>): ((data: V) => boolean);
-
+    static instanceof<T, V = any>(cls: Cls<T>): ((data: V) => boolean);
     /**
      * The formatFn will be applied to any item if the checkFn returned true for the same item
      */

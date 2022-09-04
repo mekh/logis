@@ -23,7 +23,7 @@ class Primitives {
    * @param {object} cls
    * @returns {function(*): boolean}
    */
-  static instanceOf(cls) {
+  static instanceof(cls) {
     return (data) => data instanceof cls;
   }
 

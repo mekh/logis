@@ -227,12 +227,14 @@ The parsing of each argument looks like this:
 
 This way it's possible to format any element at any level of nesting.
 
-An element for which one or more formatting rules are specified is called a primitive.
+An element for which one or more formatting rules are specified is called a `primitive`.
 
-The formatting rules for primitives are set by an instance of the `Primitives` class, the add method.
+The formatting rules for primitives are set by an instance of the `Primitives` class, the `add` method.
 This method takes two arguments:
 - the first one is a function that takes an element as an argument and returns a boolean if the element is the given primitive
 - the second one is a function that takes an element as an argument and returns the modified element
+
+The `add` method returns the instance itself, so the method can be chained. 
 
 The `Primitives` class is available in the `formatters` property of the logger.
 
@@ -240,16 +242,66 @@ An instance of the `Primitives` class can be passed to the `configure` method of
 
 Example:
 ```js
-const logger = require('../src');
+const logger = require('loggis');
 
 const primitives = new logger.formatters.Primitives()
   .add(
-    (item) => typeof item === 'number',
-    (item) => item.toFixed(2),
+    (item) => typeof item === 'number', // for any number
+    (item) => item.toFixed(2),          // apply this function
   );
 
 logger.configure({ primitives });
 
 logger.info(10.987654, '123.1589', { float: 1.5499, int: 1, str: '9.98765' });
 // ... 10.99 123.1589 {"float":"1.55","int":"1.00","str":"9.98765"}
+```
+
+For convenience, the `Primitives` class has two static methods - `typeof` and `instanceof` with the following definitions:
+```typescript
+  interface Cls<T, A extends any[] = any[]> extends Function { new(...args: A): T; }
+  
+  static typeof<T = any>(type: string): ((data: T) => boolean);
+  static instanceof<T, V = any>(cls: Cls<T>): ((data: V) => boolean);
+```
+
+The default primitives are:
+```js
+primitives
+  .add(Primitives.typeof('function'),  (data) => `<Function ${data.name || 'anonymous'}>`)
+  .add(Primitives.instanceof(Date),    (date) => date.toISOString())
+  .add(Primitives.instanceof(Buffer),  (data) => data.toString())
+  .add(Primitives.instanceof(Promise), () => '<Promise>')
+  .add(Primitives.instanceof(Error),   (error) => Object
+    .getOwnPropertyNames(error)
+    .reduce((acc, prop) => `${acc}\n${prop}: ${error[prop]}`, ''));
+
+```
+
+## Primitives usage examples
+### Filter sensitive data:
+```js
+const logger = require('loggis');
+const { Primitives } = logger.formatters;
+
+const isObject = (obj) => typeof obj === 'object' && obj !== null && !Array.isArray(obj);
+const hide = (obj, prop) => (Object.hasOwn(obj, prop) ? ({ ...obj, [prop]: '***' }) : obj);
+
+const primitives = new Primitives()
+  .add(isObject, (obj) => hide(obj, 'password'))
+  .add(isObject, (obj) => hide(obj, 'card_number'))
+  .add(isObject, (obj) => hide(obj, 'card_cvv'));
+
+logger.configure({ primitives });
+
+logger.info({ user: { id: 1, name: 'John', password: 'secret', card: { card_cvv: 321, card_number: 4111111111111111 } } });
+// ... {"user":{"id":1,"name":"John","password":"***","card":{"card_cvv":"***","card_number":"***"}}}
+```
+
+### Sequelize models serialization
+```js
+const { Model } = require('sequelize');
+const logger = require('loggis');
+
+const primitives = new logger.formatters.Primitives()
+  .add(Primitives.instanceof(Model), (model) => model.toJSON())
 ```

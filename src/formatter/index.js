@@ -30,10 +30,10 @@ loglineJson
 
 primitives
   .add(Primitives.typeof('function'), (data) => `<Function ${data.name || 'anonymous'}>`)
-  .add(Primitives.instanceOf(Date), (date) => date.toISOString())
-  .add(Primitives.instanceOf(Buffer), (data) => data.toString())
-  .add(Primitives.instanceOf(Promise), () => '<Promise>')
-  .add(Primitives.instanceOf(Error), (error) => Object
+  .add(Primitives.instanceof(Date), (date) => date.toISOString())
+  .add(Primitives.instanceof(Buffer), (data) => data.toString())
+  .add(Primitives.instanceof(Promise), () => '<Promise>')
+  .add(Primitives.instanceof(Error), (error) => Object
     .getOwnPropertyNames(error)
     .reduce((acc, prop) => `${acc}\n${prop}: ${error[prop]}`, ''));
 
