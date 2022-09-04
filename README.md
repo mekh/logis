@@ -7,7 +7,7 @@ A perfect choice for Kubernetes, Docker, and other systems that collect logs dir
 - no dependencies
 - [ready for usage right out of the box](#quick-start)
 - [supports JSON](#json-format)
-- [global and individual configuration of loggers](#the-default-an-individual-configuration)
+- [global and individual configuration of loggers](#the-default-and-an-individual-configuration)
 - [automatic objects serialization](#quick-start)
 - [automatic circular structures handling](#circulars)
 - [robust configuration](#advance-configuration)
@@ -23,7 +23,7 @@ $ npm install loggis
 ```
 
 # Quick start
-The logger can be user right out of the box, i.e. it does not require any configuration by default.
+The logger can be used right out of the box, i.e. it does not require any configuration by default.
 The default settings are:
 - loglevel: info
 - colorize: false
@@ -170,7 +170,7 @@ logger.info('user info =>', { id: 1, name: 'John', email: 'mail@g.co' });
 
 ```
 
-### The default an individual configuration
+### The default and an individual configuration
 ```js
 const logger = require('loggis');
 
@@ -327,7 +327,7 @@ The `join` method of the logline instance defines a separator that is used while
 
 ```js
 const logger = require('loggis');
-const { Logline } = logger.formatters.Logline;
+const { Logline } = logger.formatters;
 
 // --- Simplest format ---
 const logline = new Logline().add(message => message.text);
