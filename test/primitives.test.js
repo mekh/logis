@@ -11,12 +11,12 @@ describe('# Primitives', () => {
 
     it('static - should have methods', () => {
       expect(typeof Primitives.typeof).toBe('function');
-      expect(typeof Primitives.instanceOf).toBe('function');
+      expect(typeof Primitives.instanceof).toBe('function');
     });
 
     it('static - should return a function', () => {
       expect(typeof Primitives.typeof('number')).toBe('function');
-      expect(typeof Primitives.instanceOf('number')).toBe('function');
+      expect(typeof Primitives.instanceof('number')).toBe('function');
     });
 
     it('static - should define a type match', () => {
@@ -27,7 +27,7 @@ describe('# Primitives', () => {
     });
 
     it('static - should define an instance match', () => {
-      const fn = Primitives.instanceOf(Error);
+      const fn = Primitives.instanceof(Error);
 
       expect(fn(new Error())).toBe(true);
       expect(fn(Buffer.from(''))).toBe(false);
