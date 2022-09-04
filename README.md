@@ -307,3 +307,83 @@ const primitives = new logger.formatters.Primitives()
 ```
 
 ## Logline
+The elements to be printed are specified by calling the `add` method of an instance of the `Logline` class.
+
+The `add` method accepts a `Message` instance and returns any type of data.
+
+The `Message` instance has the following properties:
+- date - new Date()
+- pid - process.pid
+- data - an array of items returned by the Parser (see [Primitives](#primitives))
+- level - message level, i.e. for log.error it will be error
+- category - logger category (logger.getLogger('myapp') => the category is myapp);
+- fileName - the name of the file where the logger function was called
+- lineNumber - line number where the logger method was called
+- functionName - name of the function from which the logger method was called
+- text - could be a string or an array depending on `json` option of the logger
+
+The `Logline` class is available in the `formatters` property of the logger.
+
+The `join` method of the logline instance defines a separator that is used while joining all the logline elements. It does not work for JSON format.
+
+```js
+const logger = require('loggis');
+const { Logline } = logger.formatters.Logline;
+
+// --- Simplest format ---
+const logline = new Logline().add(message => message.text);
+logger.configure({ logline }).info(1, [2, 3], { 4: 5 }); // 1 [2,3] {"4":5}
+
+// --- Static text ---
+const logline = new Logline()
+        .add(() => '[static_text]')
+        .add(message => `[${message.text}]`)
+        .join('');
+logger.configure({ logline }).info('log message'); // [static_text] [log message]
+
+// --- JOIN ---
+const logline = new Logline()
+        .add(message => message.date.valueOf())
+        .add(message => message.level)
+        .add(message => message.pid)
+        .add(message => message.text)
+        .join(' | ');
+logger.configure({ logline }).info('log message'); // 1662193046549 | info | 1628157 | log message
+
+// --- JSON format ---
+const logline = new Logline()
+        .add(message => ({ date: message.date }))
+        .add(message => ({ message: message.text }));
+logger.configure({ json: true, logline }).info('user =>', { id: 1, name: 'John' }); // {"date":"2022-09-03T08:17:26.549Z","message":["user =>",{"id":1,"name":"John"}]}
+
+
+```
+
+#### Default logline
+```js
+const wrap = data => `[${data}]`;
+
+logline
+  .add(message => wrap(message.date.toISOString()))
+  .add(message => wrap(message.level.toUpperCase()))
+  .add(message => wrap(message.pid))
+  .add(message => wrap(message.category))
+  .add(message => wrap(`${message.fileName}||${message.functionName || '-'}:${message.lineNumber || -1}`))
+  .add(message => message.text);
+
+```
+#### Default json logline
+```js
+loglineJson
+  .add(message => ({ date: message.date.toISOString() }))
+  .add(message => ({ level: message.level }))
+  .add(message => ({ pid: message.pid }))
+  .add(message => ({ category: message.category }))
+  .add(message => ({ filename: message.fileName }))
+  .add(message => ({ function: message.functionName || '-' }))
+  .add(message => ({ line: message.lineNumber || -1 }))
+  .add(message => ({ data: message.text }));
+```
+
+## License
+[MIT](https://opensource.org/licenses/MIT "The MIT License")

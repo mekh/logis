@@ -63,7 +63,7 @@ declare interface Message {
     /**
      * A string if 'json' is false, an array otherwise
      */
-    text: string;
+    text: string | any[];
 }
 
 
