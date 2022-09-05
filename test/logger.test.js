@@ -1,5 +1,5 @@
 const each = require('jest-each').default;
-const Logger = require('../src/logger/logger');
+const { Logger } = require('../src/logger/logger');
 const logger = require('../src');
 const { DEFAULT_STORAGE_LIMIT } = require('../src/constants');
 const { Logline, Primitives } = require('../src/formatter');

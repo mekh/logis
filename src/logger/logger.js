@@ -22,9 +22,9 @@ class Logger {
   /**
    * @constructor
    * @param {string} [category] - category name
-   * @param {object} config - logging level
-   * @param {object} storage
-   * @param {Loglevel} levels
+   * @param {Config} config - logging level
+   * @param {LoggerStorage} storage
+   * @param {Loglevel} level
    */
   constructor({
     category,
@@ -132,11 +132,11 @@ class Logger {
 
   /**
    * Get a new or stored logger
-   * @param category
+   * @param {string} [category]
    * @returns {Logger}
    */
   getLogger(category) {
-    const stored = this.storage.getLogger(category);
+    const stored = this.storage.getLogger({ category });
     if (stored) {
       return stored;
     }
@@ -147,9 +147,7 @@ class Logger {
       storage: this.storage,
     });
 
-    if (category) {
-      this.storage.addLogger(category, logger);
-    }
+    this.storage.addLogger({ category, logger });
 
     return logger;
   }
@@ -227,4 +225,6 @@ class Logger {
   }
 }
 
-module.exports = Logger;
+module.exports = {
+  Logger,
+};

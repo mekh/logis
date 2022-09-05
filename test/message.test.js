@@ -34,7 +34,6 @@ describe('# Message', () => {
     };
 
     const message = new Message(settings);
-    console.log(message.text);
 
     expect(message.text).toBe('1 a {"key":"value"}');
   });

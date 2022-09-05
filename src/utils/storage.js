@@ -1,51 +1,60 @@
-const errors = require('../common/errors');
-const { DEFAULT_STORAGE_LIMIT } = require('../constants');
-
-const loggers = [];
-
-/**
- * Find logger
- * @param {string} category - category name
- * @return {Logger|undefined}
- */
-const findLogger = category => loggers.find(logger => logger.category === category);
-
-/**
- * Get an existing logger
- * @param {string} [category] - category name
- * @return {Logger|null}
- */
-const getLogger = (category) => {
-  if (!category) {
-    return null;
+class Storage {
+  /**
+   * @param {object} config
+   * @param {number} [config.limit]
+   */
+  constructor({ limit }) {
+    this.limit = limit;
+    this.storage = [];
   }
 
-  return findLogger(category);
-};
+  /**
+   * @param {*} item
+   * @return {void}
+   */
+  add(item) {
+    if (this.storage.length >= this.limit) {
+      this.storage.shift();
+    }
 
-/**
- * Add a new logger
- * @param {string} category - category name
- * @param {object} logger - logger instance
- * @return {void}
- */
-const addLogger = (category, logger) => {
-  if (!['symbol', 'string'].includes(typeof category)) {
-    throw errors.invalidCategory;
+    this.storage.push(item);
   }
 
-  if (findLogger(category)) {
-    return;
+  /**
+   * @param {*} condition
+   * @return {*[]}
+   */
+  find(condition) {
+    return condition !== null && typeof condition === 'object' && !Array.isArray(condition)
+      ? this.byObjects(condition)
+      : this.byPlain(condition);
   }
 
-  if (loggers.length >= DEFAULT_STORAGE_LIMIT) {
-    loggers.shift();
+  /**
+   * @param {Object.<string, *>} filters
+   * @return {*[]}
+   * @private
+   */
+  byObjects(filters) {
+    const items = this.storage.filter(item => item !== null && typeof item === 'object' && !Array.isArray(item));
+
+    return Object
+      .entries(filters)
+      .reduce((acc, [key, value]) => acc.filter(item => item[key] === value), items);
   }
 
-  loggers.push(logger);
-};
+  /**
+   * @param {*|*[]} filters
+   * @returns {*[]}
+   * @private
+   */
+  byPlain(filters) {
+    const conditions = Array.isArray(filters) ? filters : [filters];
+
+    return conditions.reduce((acc, filter) => acc.filter(item => item === filter), this.storage);
+  }
+}
 
 module.exports = {
-  getLogger,
-  addLogger,
+  Storage,
 };
