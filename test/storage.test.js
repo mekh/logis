@@ -35,20 +35,31 @@ describe('# Storage', () => {
     expect(storage.find({ a: 11, b: 22, c: 33, d: 999, e: null })).toStrictEqual([]);
   });
 
-  it('should find plain', () => {
+  it('should find simple plain', () => {
     const item1 = 1;
     const item2 = 'x';
     const item4 = null;
     const item5 = undefined;
+    const item6 = [1, null, 2];
+    const item7 = [1, 'a', null];
 
     storage.add(item1);
     storage.add(item2);
     storage.add(item4);
     storage.add(item5);
+    storage.add(item6);
+    storage.add(item7);
 
     expect(storage.find(item1)).toStrictEqual([item1]);
-    expect(storage.find([item2])).toStrictEqual([item2]);
+    expect(storage.find(item2)).toStrictEqual([item2]);
     expect(storage.find(item4)).toStrictEqual([item4]);
-    expect(storage.find([item5])).toStrictEqual([item5]);
+    expect(storage.find(item5)).toStrictEqual([item5]);
+    expect(storage.find([1, null])).toStrictEqual([item6, item7]);
+    expect(storage.find([2, null])).toStrictEqual([item6]);
+    expect(storage.find(null)).toStrictEqual([item4]);
+    expect(storage.find([null])).toStrictEqual([item6, item7]);
+    expect(storage.find([1, 'a'])).toStrictEqual([item7]);
+    expect(storage.find(['a', 1])).toStrictEqual([item7]);
+    expect(storage.find(['a', 2])).toStrictEqual([]);
   });
 });

@@ -50,8 +50,15 @@ class Storage {
    */
   byPlain(filters) {
     const conditions = Array.isArray(filters) ? filters : [filters];
+    const items = this.storage.filter(item => (
+      Array.isArray(filters)
+        ? Array.isArray(item)
+        : item === null || typeof item !== 'object'));
 
-    return conditions.reduce((acc, filter) => acc.filter(item => item === filter), this.storage);
+    return conditions.reduce((acc, filter) => acc
+      .filter(item => (
+        Array.isArray(item) && Array.isArray(filters) ? item.includes(filter) : item === filter
+      )), items);
   }
 }
 
