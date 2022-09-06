@@ -1,18 +1,29 @@
+/**
+ * @typedef LogLevelConfig
+ * @property {string[]} [levels]
+ */
 const { DEFAULT_LOG_LEVELS } = require('../constants');
 
 class Loglevel {
   static defaults = DEFAULT_LOG_LEVELS;
 
+  /**
+   * @param {LogLevelConfig} [config]
+   * @return {Loglevel}
+   */
   static create(config) {
     return new Loglevel(config);
   }
 
+  /**
+   * @param {*} loglevel
+   */
   static assert(loglevel) {
     return Loglevel.create().assertLevel(loglevel);
   }
 
   /**
-   * @param {string[]} [levels]
+   * @param {LogLevelConfig} [config]
    */
   constructor({ levels = DEFAULT_LOG_LEVELS } = {}) {
     this.levels = levels;

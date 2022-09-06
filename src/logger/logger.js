@@ -12,7 +12,7 @@ const { Parser } = require('../formatter');
 const { Message } = require('./message');
 const { Config } = require('../config');
 const { Loglevel } = require('./loglevel');
-const { colors } = require('../common/levels');
+const { LoggerColors } = require('./colors');
 const callsites = require('../utils/callsite');
 
 /**
@@ -25,17 +25,21 @@ class Logger {
    * @param {Config} config - logging level
    * @param {LoggerStorage} storage
    * @param {Loglevel} level
+   * @param {Colors }[colors]
    */
   constructor({
     category,
     config,
     storage,
     level = Loglevel.create(),
+    colors,
   }) {
     this.category = category || 'default';
     this.config = config;
     this.level = level;
     this.storage = storage;
+
+    this.colors = colors || new LoggerColors({ enabled: this.colorize });
 
     this.setupLoggers();
   }
@@ -205,7 +209,7 @@ class Logger {
     }
 
     const text = this.format({ args, level, logger: this });
-    const output = this.colorize && this.level.isValid(level) ? colors[level.toLowerCase()](text) : text;
+    const output = this.colorize && this.level.isValid(level) ? this.colors[level.toLowerCase()](text) : text;
 
     console.log(output);
     return text;

@@ -1,10 +1,11 @@
 const each = require('jest-each').default;
-const { Logger } = require('../src/logger/logger');
 const logger = require('../src');
-const { DEFAULT_STORAGE_LIMIT } = require('../src/constants');
+const { Logger } = require('../src/logger/logger');
 const { Logline, Primitives } = require('../src/formatter');
 
-const methods = logger.level.levels;
+const { DEFAULT_STORAGE_LIMIT, DEFAULT_LOG_LEVELS } = require('../src/constants');
+
+const methods = DEFAULT_LOG_LEVELS;
 
 const print = jest.spyOn(console, 'log').mockImplementation();
 

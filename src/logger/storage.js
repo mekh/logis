@@ -1,5 +1,6 @@
 const { Storage } = require('../utils/storage');
 const errors = require('../common/errors');
+
 const { DEFAULT_STORAGE_LIMIT } = require('../constants');
 
 class LoggerStorage extends Storage {

@@ -20,7 +20,7 @@ class Logline {
 
   /**
    * @param {*} message
-   * @returns {*[]}
+   * @returns {string}
    */
   build(message) {
     const data = this.formatters.reduce((acc, fn) => ([...acc, fn(message)]), []);
@@ -39,7 +39,7 @@ class Logline {
 
   /**
    * @param {*[]} data
-   * @return {*}
+   * @return {string}
    */
   buildLine(data) {
     return data.map(item => (item === undefined ? 'undefined' : item)).join(this.separator);

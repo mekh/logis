@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 const errors = require('../src/common/errors');
 const { Config } = require('../src/config');
 const { Logline, Primitives, defaults } = require('../src/formatter');
