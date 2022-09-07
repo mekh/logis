@@ -1,156 +1,65 @@
+/**
+ * @type {{
+ * magenta: string,
+ * brightYellow: string,
+ * green: string,
+ * yellow: string,
+ * brightGreen: string,
+ * cyan: string,
+ * brightRed: string,
+ * brightWhite: string,
+ * red: string,
+ * gray: string,
+ * brightCyan: string,
+ * blue: string,
+ * white: string,
+ * brightBlue: string,
+ * brightMagenta: string
+ * }}
+ */
+const colors = {
+  red: '[0;31m',
+  green: '[0;32m',
+  yellow: '[0;33m',
+  blue: '[0;34m',
+  magenta: '[0;35m',
+  cyan: '[0;36m',
+  white: '[0;37m',
+  gray: '[0;90m',
+  brightRed: '[0;91m',
+  brightGreen: '[0;92m',
+  brightYellow: '[0;93m',
+  brightBlue: '[0;94m',
+  brightMagenta: '[0;95m',
+  brightCyan: '[0;96m',
+  brightWhite: '[0;97m',
+};
+
 class Colors {
-  #enabled;
+  #colors;
+
+  constructor() {
+    this.markStart = '\x1B';
+    this.markEnd = '\x1B[0m';
+
+    this.#colors = colors;
+  }
 
   /**
-   * @param {object} [config]
-   * @param {boolean} [config.enabled=false]
-   * @param {string} [config.markStart='\x1B']
-   * @param {string} [config.markEnd='\x1B[0m']
+   * @return {colors}
    */
-  constructor({ enabled = false, markStart = '\x1B', markEnd = '\x1B[0m' } = {}) {
-    this.#enabled = enabled;
-
-    this.markStart = markStart;
-    this.markEnd = markEnd;
-  }
-
-  get enabled() {
-    return !!this.#enabled;
-  }
-
-  set enabled(value) {
-    this.#enabled = !!value;
+  get colors() {
+    return this.#colors;
   }
 
   /**
-   * @param {string} color
-   * @param {string} text
+   * @param {object} input
+   * @param {string} input.color
+   * @param {string} input.text
    * @return {string}
    */
-  colorize(color, text) {
-    return this.enabled
-      ? `${this.markStart}${color}${text}${this.markEnd}`
-      : text;
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  red(text) {
-    return this.colorize('[0;31m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  green(text) {
-    return this.colorize('[0;32m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  yellow(text) {
-    return this.colorize('[0;33m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  blue(text) {
-    return this.colorize('[0;34m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  magenta(text) {
-    return this.colorize('[0;35m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  cyan(text) {
-    return this.colorize('[0;36m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  white(text) {
-    return this.colorize('[0;37m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  gray(text) {
-    return this.colorize('[0;90m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  brightRed(text) {
-    return this.colorize('[0;91m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  brightGreen(text) {
-    return this.colorize('[0;92m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  brightYellow(text) {
-    return this.colorize('[0;93m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  brightBlue(text) {
-    return this.colorize('[0;94m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  brightMagenta(text) {
-    return this.colorize('[0;95m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  brightCyan(text) {
-    return this.colorize('[0;96m', text);
-  }
-
-  /**
-   * @param {string} text
-   * @return {string}
-   */
-  brightWhite(text) {
-    return this.colorize('[0;97m', text);
+  colorize({ color, text }) {
+    return `${this.markStart}${color}${text}${this.markEnd}`;
   }
 }
 

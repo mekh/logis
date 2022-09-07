@@ -1,24 +1,39 @@
 const { Colors } = require('../utils/colors');
 
 class LoggerColors extends Colors {
-  get error() {
-    return this.red.bind(this);
+  #enabled = false;
+
+  constructor(options) {
+    super(options);
+
+    this.levelMap = new Map(Object.entries({
+      error: this.colors.red,
+      warn: this.colors.yellow,
+      info: this.colors.cyan,
+      debug: this.colors.green,
+      trace: this.colors.brightBlue,
+    }));
   }
 
-  get warn() {
-    return this.yellow.bind(this);
+  get enabled() {
+    return !!this.#enabled;
   }
 
-  get info() {
-    return this.cyan.bind(this);
+  set enabled(value) {
+    this.#enabled = !!value;
   }
 
-  get debug() {
-    return this.green.bind(this);
-  }
-
-  get trace() {
-    return this.blue.bind(this);
+  /**
+   * @param {object} input
+   * @param {string} [input.level]
+   * @param {string} input.text
+   * @return {string}
+   */
+  colorize({ level, text }) {
+    const color = this.levelMap.get(level);
+    return this.enabled && color
+      ? super.colorize({ color, text })
+      : text;
   }
 }
 

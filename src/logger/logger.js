@@ -132,6 +132,7 @@ class Logger {
    */
   set colorize(value) {
     this.config.colorize = value;
+    this.colors.enabled = this.config.colorize;
   }
 
   /**
@@ -209,7 +210,7 @@ class Logger {
     }
 
     const text = this.format({ args, level, logger: this });
-    const output = this.colorize && this.level.isValid(level) ? this.colors[level.toLowerCase()](text) : text;
+    const output = this.colors.colorize({ level, text });
 
     console.log(output);
     return text;
