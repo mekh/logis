@@ -11,35 +11,41 @@
 const { Parser } = require('../formatter');
 const { Message } = require('./message');
 const { Config } = require('../config');
-const { Loglevel } = require('./loglevel');
-const { LoggerColors } = require('./colors');
 const callsites = require('../utils/callsite');
 
 /**
  * @class Logger
  */
 class Logger {
+  #config;
+
+  #storage;
+
+  #colors;
+
+  #loglevel;
+
   /**
    * @constructor
    * @param {string} [category] - category name
-   * @param {Config} config - logging level
+   * @param {Config} config
    * @param {LoggerStorage} storage
-   * @param {Loglevel} level
-   * @param {Colors }[colors]
+   * @param {Loglevel} loglevel
+   * @param {Colors } colors
    */
   constructor({
-    category,
+    category = 'default',
     config,
     storage,
-    level = Loglevel.create(),
+    loglevel,
     colors,
   }) {
-    this.category = category || 'default';
-    this.config = config;
-    this.level = level;
-    this.storage = storage;
+    this.category = category;
 
-    this.colors = colors || new LoggerColors({ enabled: this.colorize });
+    this.#loglevel = loglevel;
+    this.#config = config;
+    this.#storage = storage;
+    this.#colors = colors;
 
     this.setupLoggers();
   }
@@ -48,42 +54,42 @@ class Logger {
    * @return {Logline}
    */
   get logline() {
-    return this.config.logline;
+    return this.#config.logline;
   }
 
   /**
    * @param {Logline} logline
    */
   set logline(logline) {
-    this.config.logline = logline;
+    this.#config.logline = logline;
   }
 
   /**
    * @return {Primitives}
    */
   get primitives() {
-    return this.config.primitives;
+    return this.#config.primitives;
   }
 
   /**
    * @param {Primitives} primitives
    */
   set primitives(primitives) {
-    this.config.primitives = primitives;
+    this.#config.primitives = primitives;
   }
 
   /**
    * @return {boolean}
    */
   get json() {
-    return this.config.json;
+    return this.#config.json;
   }
 
   /**
    * @param {boolean} json
    */
   set json(json) {
-    this.config.json = json;
+    this.#config.json = json;
   }
 
   /**
@@ -91,7 +97,7 @@ class Logger {
    * @returns {function|undefined}
    */
   get format() {
-    return this.config.format || this.buildLog;
+    return this.#config.format || this.buildLog.bind(this);
   }
 
   /**
@@ -99,7 +105,7 @@ class Logger {
    * @param {function} formatFn
    */
   set format(formatFn) {
-    this.config.format = formatFn;
+    this.#config.format = formatFn;
   }
 
   /**
@@ -107,7 +113,7 @@ class Logger {
    * @returns {string}
    */
   get loglevel() {
-    return this.config.loglevel;
+    return this.#config.loglevel;
   }
 
   /**
@@ -115,7 +121,7 @@ class Logger {
    * @param {string} loglevel
    */
   set loglevel(loglevel) {
-    this.config.loglevel = loglevel;
+    this.#config.loglevel = loglevel;
   }
 
   /**
@@ -123,7 +129,7 @@ class Logger {
    * @returns {boolean}
    */
   get colorize() {
-    return this.config.colorize;
+    return this.#config.colorize;
   }
 
   /**
@@ -131,8 +137,8 @@ class Logger {
    * @param {boolean} value
    */
   set colorize(value) {
-    this.config.colorize = value;
-    this.colors.enabled = this.config.colorize;
+    this.#config.colorize = value;
+    this.#colors.enabled = this.#config.colorize;
   }
 
   /**
@@ -141,7 +147,7 @@ class Logger {
    * @returns {Logger}
    */
   getLogger(category) {
-    const stored = this.storage.getLogger({ category });
+    const stored = this.#storage.getLogger({ category });
     if (stored) {
       return stored;
     }
@@ -149,10 +155,12 @@ class Logger {
     const logger = new Logger({
       category,
       config: new Config(),
-      storage: this.storage,
+      storage: this.#storage,
+      colors: this.#colors,
+      loglevel: this.#loglevel,
     });
 
-    this.storage.addLogger({ category, logger });
+    this.#storage.addLogger({ category, logger });
 
     return logger;
   }
@@ -177,7 +185,7 @@ class Logger {
    * @private
    */
   setupLoggers() {
-    this.level.levels.forEach((level) => {
+    this.#loglevel.levels.forEach((level) => {
       this[level] = this.log.bind(this, level);
     });
   }
@@ -189,7 +197,7 @@ class Logger {
    * @private
    */
   shouldLog(loglevel) {
-    return this.level.severity(this.loglevel) >= this.level.severity(loglevel);
+    return this.#loglevel.severity(this.loglevel) >= this.#loglevel.severity(loglevel);
   }
 
   /**
@@ -200,7 +208,7 @@ class Logger {
    * @private
    */
   log(level, ...args) {
-    const isValid = this.level.isValid(level);
+    const isValid = this.#loglevel.isValid(level);
     if (isValid && !this.shouldLog(level)) {
       return;
     }
@@ -210,7 +218,7 @@ class Logger {
     }
 
     const text = this.format({ args, level, logger: this });
-    const output = this.colors.colorize({ level, text });
+    const output = this.#colors.colorize({ level, text });
 
     console.log(output);
     return text;

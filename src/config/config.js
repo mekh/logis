@@ -21,24 +21,24 @@ const envConfig = {
 };
 
 class Config {
-  static _logline;
+  static #logline;
 
-  static _primitives;
+  static #primitives;
 
-  static _format;
+  static #format;
 
-  static _loglevel;
+  static #loglevel;
 
-  static _colorize;
+  static #colorize;
 
-  static _json;
+  static #json;
 
   static get logline() {
     const defaultLogline = Config.json
       ? defaults.loglineJson
       : defaults.logline;
 
-    return Config._logline || defaultLogline;
+    return Config.#logline || defaultLogline;
   }
 
   static set logline(logline) {
@@ -46,11 +46,11 @@ class Config {
       return;
     }
 
-    Config._logline = logline;
+    Config.#logline = logline;
   }
 
   static get primitives() {
-    return Config._primitives || defaults.primitives;
+    return Config.#primitives || defaults.primitives;
   }
 
   /**
@@ -61,15 +61,15 @@ class Config {
       return;
     }
 
-    Config._primitives = primitives;
+    Config.#primitives = primitives;
   }
 
   /**
    * @returns {string}
    */
   static get loglevel() {
-    if (Config._loglevel !== undefined) {
-      return Config._loglevel;
+    if (Config.#loglevel !== undefined) {
+      return Config.#loglevel;
     }
 
     const env = envConfig.logLevel || '';
@@ -88,15 +88,15 @@ class Config {
     }
 
     Loglevel.assert(level);
-    Config._loglevel = level.toLowerCase();
+    Config.#loglevel = level.toLowerCase();
   }
 
   /**
    * @returns {boolean}
    */
   static get colorize() {
-    if (Config._colorize !== undefined) {
-      return Config._colorize;
+    if (Config.#colorize !== undefined) {
+      return Config.#colorize;
     }
 
     return envConfig.colorize === 'true' || DEFAULT_USE_COLORS;
@@ -114,14 +114,14 @@ class Config {
       throw Errors.invalidTypeBool;
     }
 
-    Config._colorize = useColors;
+    Config.#colorize = useColors;
   }
 
   /**
    * @return {(function({args: *, level: *, logger: *}): *)}
    */
   static get format() {
-    return Config._format;
+    return Config.#format;
   }
 
   /**
@@ -135,12 +135,12 @@ class Config {
     if (typeof formatFn !== 'function') {
       throw Errors.invalidTypeFn;
     }
-    Config._format = formatFn;
+    Config.#format = formatFn;
   }
 
   static get json() {
-    if (Config._json !== undefined) {
-      return Config._json;
+    if (Config.#json !== undefined) {
+      return Config.#json;
     }
 
     return envConfig.json === 'true' || DEFAULT_USE_JSON;
@@ -158,17 +158,17 @@ class Config {
       throw Errors.invalidTypeBool;
     }
 
-    Config._json = useJson;
-    if (useJson && Config._logline === defaults.logline) {
+    Config.#json = useJson;
+    if (useJson && Config.#logline === defaults.logline) {
       Config.logline = defaults.loglineJson;
     }
 
-    if (!useJson && Config._logline === defaults.loglineJson) {
+    if (!useJson && Config.#logline === defaults.loglineJson) {
       Config.logline = defaults.logline;
     }
 
-    if (Config._logline) {
-      Config._logline.json = useJson;
+    if (Config.#logline) {
+      Config.#logline.json = useJson;
     }
   }
 
@@ -184,6 +184,18 @@ class Config {
     Config.primitives = config.primitives;
     Config.json = config.json;
   }
+
+  #_logline;
+
+  #_primitives;
+
+  #_format;
+
+  #_loglevel;
+
+  #_colorize;
+
+  #_json;
 
   /**
    * @param {ConfigParams} [config]
@@ -209,7 +221,7 @@ class Config {
    * @returns {string}
    */
   get loglevel() {
-    return this._loglevel;
+    return this.#_loglevel;
   }
 
   /**
@@ -222,7 +234,7 @@ class Config {
     }
 
     Loglevel.assert(level);
-    this._loglevel = level.toLowerCase();
+    this.#_loglevel = level.toLowerCase();
   }
 
   /**
@@ -230,7 +242,7 @@ class Config {
    * @returns {boolean}
    */
   get colorize() {
-    return this._colorize;
+    return this.#_colorize;
   }
 
   /**
@@ -246,7 +258,7 @@ class Config {
       throw Errors.invalidTypeBool;
     }
 
-    this._colorize = value;
+    this.#_colorize = value;
   }
 
   /**
@@ -254,7 +266,7 @@ class Config {
    * @returns {function(*): string}
    */
   get format() {
-    return this._format;
+    return this.#_format;
   }
 
   /**
@@ -270,11 +282,11 @@ class Config {
       throw Errors.invalidTypeFn;
     }
 
-    this._format = value;
+    this.#_format = value;
   }
 
   get json() {
-    return this._json;
+    return this.#_json;
   }
 
   /**
@@ -289,20 +301,20 @@ class Config {
       throw Errors.invalidTypeBool;
     }
 
-    this._json = useJson;
-    if (useJson && this._logline === defaults.logline) {
+    this.#_json = useJson;
+    if (useJson && this.#_logline === defaults.logline) {
       this.logline = defaults.loglineJson;
     }
 
-    if (!useJson && this._logline === defaults.loglineJson) {
+    if (!useJson && this.#_logline === defaults.loglineJson) {
       this.logline = defaults.logline;
     }
 
-    this._logline.json = useJson;
+    this.#_logline.json = useJson;
   }
 
   get logline() {
-    return this._logline;
+    return this.#_logline;
   }
 
   set logline(logline) {
@@ -310,11 +322,11 @@ class Config {
       return;
     }
 
-    this._logline = logline;
+    this.#_logline = logline;
   }
 
   get primitives() {
-    return this._primitives;
+    return this.#_primitives;
   }
 
   /**
@@ -325,7 +337,7 @@ class Config {
       return;
     }
 
-    this._primitives = primitives;
+    this.#_primitives = primitives;
   }
 }
 

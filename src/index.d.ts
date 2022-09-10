@@ -181,41 +181,53 @@ declare namespace loggis {
          */
         get json(): boolean;
         /**
-         * Make the output colorized (if true)
+         * Make output in JSON format
          */
-        set colorize(value: boolean);
+        set json(value: boolean);
         /**
          * Get current status
          */
         get colorize(): boolean;
         /**
-         * Set a loglevel for a particular logger
+         * Make the output colorized (if true)
          */
-        set loglevel(logLevel: logLevelString)
+        set colorize(value: boolean);
         /**
          * Get log level
          */
         get loglevel(): logLevelString;
         /**
+         * Set a loglevel for a particular logger
+         */
+        set loglevel(logLevel: logLevelString)
+        /**
          * Get logline instance configured for current logger
          */
         get logline(): Logline;
+        /**
+         * Set a configured logline for this instance of logger
+         */
+        set logline(logline: Logline);
         /**
          * Get primitives instance configured for current logger
          */
         get primitives(): Primitives;
         /**
-         * Set message formatter
+         * Set configured primitives for this instance of logger
          */
-        set format(params: formatFn);
+        set primitives(primitives: Primitives);
         /**
          * Returns the formatter function
          */
         get format(): formatFn;
         /**
+         * Set message formatter
+         */
+        set format(params: formatFn);
+        /**
          * General logging function
          */
-        protected log(level?: logLevelString | any, ...args: any[]): string;
+        log(level?: logLevelString | any, ...args: any[]): string;
         /**
          * Get a new logger instance configured with the default config
          */

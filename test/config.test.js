@@ -2,24 +2,6 @@ const errors = require('../src/common/errors');
 const { Config } = require('../src/config');
 const { Logline, Primitives, defaults } = require('../src/formatter');
 
-const defaultConfig = {
-  loglevel: Config._loglevel,
-  colorize: Config._colorize,
-  format: Config._format,
-  logline: Config._logline,
-  primitives: Config._primitives,
-  json: Config._json,
-};
-
-const resetSettings = () => {
-  Config._loglevel = defaultConfig.loglevel;
-  Config._colorize = defaultConfig.colorize;
-  Config._format = defaultConfig.format;
-  Config._logline = defaultConfig.logline;
-  Config._primitives = defaultConfig.primitives;
-  Config._json = defaultConfig.json;
-};
-
 describe('# Config', () => {
   describe('# Default settings', () => {
     it('format - should be default', () => {
@@ -47,92 +29,26 @@ describe('# Config', () => {
     });
   });
 
-  describe('# Global settings', () => {
-    let globalConfig;
-    beforeEach(() => {
-      globalConfig = {
-        loglevel: 'trace',
-        colorize: true,
-        format: () => 123,
-        logline: new Logline().add(() => {}),
-        primitives: new Primitives().add(() => true, () => 123),
-        json: true,
-      };
-
-      Config.setGlobalConfig(globalConfig);
+  describe('# Validation', () => {
+    it('loglevel - should throw', () => {
+      expect(() => { Config.loglevel = 'a'; }).toThrow(errors.invalidLogLevel);
     });
 
-    it('should set global settings', () => {
-      expect(Config._loglevel).toEqual(globalConfig.loglevel);
-      expect(Config._colorize).toEqual(globalConfig.colorize);
-      expect(Config._format).toEqual(globalConfig.format);
-      expect(Config._logline).toEqual(globalConfig.logline);
-      expect(Config._primitives).toEqual(globalConfig.primitives);
-      expect(Config._json).toEqual(globalConfig.json);
+    it('colorize - should throw', () => {
+      expect(() => { Config.colorize = 'a'; }).toThrow(errors.invalidTypeBool);
     });
 
-    it('should ignore undefined items', () => {
-      Config.setGlobalConfig({});
-
-      expect(Config._loglevel).not.toBe(undefined);
-      expect(Config._colorize).not.toBe(undefined);
-      expect(Config._format).not.toBe(undefined);
-      expect(Config._logline).not.toBe(undefined);
-      expect(Config._primitives).not.toBe(undefined);
-      expect(Config._json).not.toBe(undefined);
+    it('json - should throw', () => {
+      expect(() => { Config.json = 'a'; }).toThrow(errors.invalidTypeBool);
     });
 
-    it('should inherit global settings for instances', () => {
-      const config = new Config();
-
-      expect(config.loglevel).toEqual(globalConfig.loglevel);
-      expect(config.colorize).toEqual(globalConfig.colorize);
-      expect(config.format).toEqual(globalConfig.format);
-      expect(config.logline).toEqual(globalConfig.logline);
-      expect(config.primitives).toEqual(globalConfig.primitives);
-      expect(config.json).toEqual(globalConfig.json);
-    });
-
-    it('logline - should not set undefined', () => {
-      Config.logline = undefined;
-
-      expect(Config.logline).toBe(globalConfig.logline);
-    });
-
-    it('primitives - should not set undefined', () => {
-      Config.primitives = undefined;
-
-      expect(Config.primitives).toBe(globalConfig.primitives);
-    });
-
-    it('loglevel - should not set undefined', () => {
-      Config.loglevel = undefined;
-
-      expect(Config.loglevel).toBe(globalConfig.loglevel);
-    });
-
-    it('colorize - should not set undefined', () => {
-      Config.colorize = undefined;
-
-      expect(Config.colorize).toBe(globalConfig.colorize);
-    });
-
-    it('json - should not set undefined', () => {
-      Config.json = undefined;
-
-      expect(Config.json).toBe(globalConfig.json);
-    });
-
-    it('format - should not set undefined', () => {
-      Config.format = undefined;
-
-      expect(Config.format).toBe(globalConfig.format);
+    it('format - should throw', () => {
+      expect(() => { Config.format = 'a'; }).toThrow(errors.invalidTypeFn);
     });
   });
 
   describe('# Environment', () => {
     beforeEach(() => {
-      resetSettings();
       process.env.LOG_LEVEL = '';
       process.env.LOG_COLORS = '';
       process.env.LOG_JSON = '';
@@ -189,10 +105,117 @@ describe('# Config', () => {
     });
   });
 
+  describe('# Custom settings', () => {
+    it('logline JSON - should return default loglineJson if json is true', () => {
+      Config.json = true;
+      expect(Config.logline).toBe(defaults.loglineJson);
+    });
+
+    it('logline jSON - should return custom logline if json true', () => {
+      const logline = new Logline().add(() => 1);
+      Config.logline = logline;
+      Config.json = true;
+
+      expect(Config.logline).toBe(logline);
+      expect(logline.json).toBe(true);
+    });
+
+    it('colorize - should store the default colorize option', () => {
+      process.env.LOG_COLORS = 'false';
+      Config.colorize = true;
+      expect(Config.colorize).toBe(true);
+    });
+
+    it('json - should switch default logline to json', () => {
+      Config.logline = defaults.logline;
+      Config.json = true;
+
+      expect(Config.logline).toBe(defaults.loglineJson);
+    });
+
+    it('json - should switch default logline to line', () => {
+      Config.logline = defaults.loglineJson;
+      Config.json = false;
+
+      expect(Config.logline).toBe(defaults.logline);
+    });
+  });
+
+  describe('# Global settings', () => {
+    let globalConfig;
+    beforeEach(() => {
+      globalConfig = {
+        loglevel: 'trace',
+        colorize: true,
+        format: () => 123,
+        logline: new Logline().add(() => {}),
+        primitives: new Primitives().add(() => true, () => 123),
+        json: true,
+      };
+
+      Config.setGlobalConfig(globalConfig);
+    });
+
+    it('should set global settings', () => {
+      expect(Config.loglevel).toEqual(globalConfig.loglevel);
+      expect(Config.colorize).toEqual(globalConfig.colorize);
+      expect(Config.format).toEqual(globalConfig.format);
+      expect(Config.logline).toEqual(globalConfig.logline);
+      expect(Config.primitives).toEqual(globalConfig.primitives);
+      expect(Config.json).toEqual(globalConfig.json);
+    });
+
+    it('should inherit global settings for instances', () => {
+      const config = new Config();
+
+      expect(config.loglevel).toEqual(globalConfig.loglevel);
+      expect(config.colorize).toEqual(globalConfig.colorize);
+      expect(config.format).toEqual(globalConfig.format);
+      expect(config.logline).toEqual(globalConfig.logline);
+      expect(config.primitives).toEqual(globalConfig.primitives);
+      expect(config.json).toEqual(globalConfig.json);
+    });
+
+    it('logline - should not set undefined', () => {
+      Config.logline = undefined;
+
+      expect(Config.logline).toBe(globalConfig.logline);
+    });
+
+    it('primitives - should not set undefined', () => {
+      Config.primitives = undefined;
+
+      expect(Config.primitives).toBe(globalConfig.primitives);
+    });
+
+    it('loglevel - should not set undefined', () => {
+      Config.loglevel = undefined;
+
+      expect(Config.loglevel).toBe(globalConfig.loglevel);
+    });
+
+    it('colorize - should not set undefined', () => {
+      Config.colorize = undefined;
+
+      expect(Config.colorize).toBe(globalConfig.colorize);
+    });
+
+    it('json - should not set undefined', () => {
+      Config.json = undefined;
+
+      expect(Config.json).toBe(globalConfig.json);
+    });
+
+    it('format - should not set undefined', () => {
+      Config.format = undefined;
+
+      expect(Config.format).toBe(globalConfig.format);
+    });
+  });
+
   describe('# Instance', () => {
     let config;
     beforeEach(() => {
-      resetSettings();
       config = new Config();
     });
 
@@ -296,64 +319,6 @@ describe('# Config', () => {
 
       conf.json = true;
       expect(logline.json).toBe(true);
-    });
-  });
-
-  describe('# Validation', () => {
-    it('loglevel - should throw', () => {
-      expect(() => { Config.loglevel = 'a'; }).toThrow(errors.invalidLogLevel);
-    });
-
-    it('colorize - should throw', () => {
-      expect(() => { Config.colorize = 'a'; }).toThrow(errors.invalidTypeBool);
-    });
-
-    it('json - should throw', () => {
-      expect(() => { Config.json = 'a'; }).toThrow(errors.invalidTypeBool);
-    });
-
-    it('format - should throw', () => {
-      expect(() => { Config.format = 'a'; }).toThrow(errors.invalidTypeFn);
-    });
-  });
-
-  describe('# Custom settings', () => {
-    beforeEach(() => {
-      resetSettings();
-    });
-
-    it('logline JSON - should return default loglineJson if json is true', () => {
-      Config.json = true;
-      expect(Config.logline).toBe(defaults.loglineJson);
-    });
-
-    it('logline jSON - should return custom logline if json true', () => {
-      const logline = new Logline().add(() => 1);
-      Config.logline = logline;
-      Config.json = true;
-
-      expect(Config.logline).toBe(logline);
-      expect(logline.json).toBe(true);
-    });
-
-    it('colorize - should store the default colorize option', () => {
-      process.env.LOG_COLORS = 'false';
-      Config.colorize = true;
-      expect(Config.colorize).toBe(true);
-    });
-
-    it('json - should switch default logline to json', () => {
-      Config.logline = defaults.logline;
-      Config.json = true;
-
-      expect(Config.logline).toBe(defaults.loglineJson);
-    });
-
-    it('json - should switch default logline to line', () => {
-      Config.logline = defaults.loglineJson;
-      Config.json = false;
-
-      expect(Config.logline).toBe(defaults.logline);
     });
   });
 });

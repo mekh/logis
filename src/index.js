@@ -8,15 +8,16 @@
  * @property {object} [primitives]
  */
 
-const { Logger } = require('./logger/logger');
-const { LoggerStorage } = require('./logger/storage');
+const { Logger, LoggerStorage, LoggerColors, Loglevel } = require('./logger');
 const { Config } = require('./config');
 const { defaults, Primitives, Logline } = require('./formatter');
-
 const { DEFAULT_STORAGE_LIMIT } = require('./constants');
 
 const storage = new LoggerStorage({ limit: DEFAULT_STORAGE_LIMIT });
-const logger = new Logger({ storage, config: new Config() });
+const colors = new LoggerColors();
+const loglevel = new Loglevel();
+
+const logger = new Logger({ storage, colors, loglevel, config: new Config() });
 
 /**
  * @type {{Logline: Logline, Primitives: Primitives}}
