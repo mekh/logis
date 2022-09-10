@@ -12,9 +12,9 @@ class Message {
     this.data = data;
     this.level = level;
     this.category = category;
-    this.fileName = callsite.fileName;
-    this.lineNumber = callsite.lineNumber;
-    this.functionName = callsite.functionName;
+    this.fileName = callsite.fileName || '';
+    this.lineNumber = callsite.lineNumber || '';
+    this.functionName = callsite.functionName || '';
 
     this.text = this.format(json);
   }

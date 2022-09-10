@@ -2,12 +2,14 @@ const each = require('jest-each').default;
 const logger = require('../src');
 const { Logger } = require('../src/logger/logger');
 const { Logline, Primitives } = require('../src/formatter');
+const callsite = require('../src/utils/callsite');
 
 const { DEFAULT_STORAGE_LIMIT, DEFAULT_LOG_LEVELS } = require('../src/constants');
 
 const methods = DEFAULT_LOG_LEVELS;
 
 const print = jest.spyOn(console, 'log').mockImplementation();
+jest.spyOn(callsite, 'getCallsite');
 
 describe('# Logger', () => {
   beforeEach(() => {
@@ -177,6 +179,34 @@ describe('# Logger', () => {
     expect(log.json).toBe(true);
   });
 
+  it('should set/get callsites', () => {
+    const log = logger.getLogger('callsites');
+
+    log.callsites = true;
+    expect(log.callsites).toBe(true);
+
+    log.callsites = false;
+    expect(log.callsites).toBe(false);
+  });
+
+  it('should not call callsites', () => {
+    const log = logger.getLogger('callsites');
+
+    log.callsites = false;
+    log.error(123);
+
+    expect(callsite.getCallsite).not.toHaveBeenCalled();
+  });
+
+  it('should call callsites', () => {
+    const log = logger.getLogger('callsites');
+
+    log.callsites = true;
+    log.error(123);
+
+    expect(callsite.getCallsite).toHaveBeenCalled();
+  });
+
   it('should configure', () => {
     const log = logger.getLogger('new-log');
 
@@ -187,6 +217,7 @@ describe('# Logger', () => {
       logline: new Logline(),
       primitives: new Primitives(),
       json: true,
+      callsites: true,
     };
 
     log.configure(config);
@@ -196,5 +227,6 @@ describe('# Logger', () => {
     expect(log.logline).toBe(config.logline);
     expect(log.primitives).toBe(config.primitives);
     expect(log.json).toBe(config.json);
+    expect(log.callsites).toBe(config.callsites);
   });
 });

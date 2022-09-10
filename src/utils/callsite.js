@@ -21,4 +21,6 @@ const getCallsite = () => {
   };
 };
 
-module.exports = getCallsite;
+module.exports = {
+  getCallsite,
+};

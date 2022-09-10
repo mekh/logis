@@ -60,21 +60,23 @@ Each logger instance can be configured individually by setting an instance prope
 ## Environment variables
 The default configuration can be set through the environment variables.
 
-| Name       | Type    | Default value | Description                       |
-|------------|---------|---------------|-----------------------------------|
-| LOG_LEVEL  | String  | info          | The default logging level         |
-| LOG_JSON   | Boolean | false         | Turns on/off JSON output          |
-| LOG_COLORS | Boolean | false         | Turns on/off the colorized output |
+| Name          | Type    | Default value | Description                                                    |
+|---------------|---------|---------------|----------------------------------------------------------------|
+| LOG_LEVEL     | String  | info          | The default logging level                                      |
+| LOG_JSON      | Boolean | false         | Turns on/off JSON output                                       |
+| LOG_COLORS    | Boolean | false         | Turns on/off the colorized output                              |
+| LOG_CALLSITES | Boolean | true          | Turns on/off callsite information (filename, line number, etc) |
 
 ## Configure options
 The default configuration can be passed to the `configure` method.
 It accepts the following parameters:
-- loglevel - the default logging level, valid values are `error`, `warn`, `info`, `debug`, and `trace`
-- json - use json output
-- colorize - use colored output
-- [format](#custom-formatter-deprecated) - custom message formatter (DEPRECATED)
-- [logline](#logline) - the Logline instance
-- [primitives](#primitives) - the Primitives instance
+- loglevel (string) - the default logging level, valid values are `error`, `warn`, `info`, `debug`, and `trace`
+- json (boolean) - use json output
+- colorize (boolean) - use colored output
+- callsites (boolean) - callsite information (filename, line number, etc)
+- [format](#custom-formatter-deprecated) (function) - custom message formatter (DEPRECATED)
+- [logline](#logline) (Logline) - the Logline instance
+- [primitives](#primitives) (Primitives) - the Primitives instance
 
 The same parameters can be used for an individual configuration of a logger.
 
@@ -316,9 +318,9 @@ The `Message` instance has the following properties:
 - data - an array of items returned by the Parser (see [Primitives](#primitives))
 - level - message level, i.e. for log.error it will be error
 - category - logger category (logger.getLogger('myapp') => the category is myapp);
-- fileName - the name of the file where the logger function was called
-- lineNumber - line number where the logger method was called
-- functionName - name of the function from which the logger method was called
+- fileName - the name of the file where the logger function was called (if callsites option is true)
+- lineNumber - line number where the logger method was called (if callsites option is true)
+- functionName - name of the function from which the logger method was called (if callsites option is true)
 - text - could be a string or an array depending on `json` option of the logger
 
 The `Logline` class is available in the `formatters` property of the logger.

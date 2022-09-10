@@ -7,17 +7,19 @@
  * @property {function(*): *} [format]
  * @property {Logline} [logline]
  * @property {Primitives} [primitives]
+ * @property {boolean} [callsites]
  */
 
 const Errors = require('../common/errors');
 const { defaults } = require('../formatter');
-const { DEFAULT_LOG_LEVEL, DEFAULT_USE_JSON, DEFAULT_USE_COLORS } = require('../constants');
+const { DEFAULT_LOG_LEVEL, DEFAULT_USE_JSON, DEFAULT_USE_COLORS, DEFAULT_USE_CALLSITES } = require('../constants');
 const { Loglevel } = require('../logger/loglevel');
 
 const envConfig = {
   get logLevel() { return process.env.LOG_LEVEL; },
   get colorize() { return process.env.LOG_COLORS; },
   get json() { return process.env.LOG_JSON; },
+  get callsites() { return process.env.LOG_CALLSITES; },
 };
 
 class Config {
@@ -32,6 +34,8 @@ class Config {
   static #colorize;
 
   static #json;
+
+  static #callsites;
 
   static get logline() {
     const defaultLogline = Config.json
@@ -99,7 +103,9 @@ class Config {
       return Config.#colorize;
     }
 
-    return envConfig.colorize === 'true' || DEFAULT_USE_COLORS;
+    return ['true', 'false'].includes(envConfig.colorize)
+      ? envConfig.colorize === 'true'
+      : DEFAULT_USE_COLORS;
   }
 
   /**
@@ -143,7 +149,9 @@ class Config {
       return Config.#json;
     }
 
-    return envConfig.json === 'true' || DEFAULT_USE_JSON;
+    return ['true', 'false'].includes(envConfig.json)
+      ? envConfig.json === 'true'
+      : DEFAULT_USE_JSON;
   }
 
   /**
@@ -173,6 +181,34 @@ class Config {
   }
 
   /**
+   * @returns {boolean}
+   */
+  static get callsites() {
+    if (Config.#callsites !== undefined) {
+      return Config.#callsites;
+    }
+
+    return ['true', 'false'].includes(envConfig.callsites)
+      ? envConfig.callsites === 'true'
+      : DEFAULT_USE_CALLSITES;
+  }
+
+  /**
+   * @param {boolean} useCallsites
+   */
+  static set callsites(useCallsites) {
+    if (useCallsites === undefined) {
+      return;
+    }
+
+    if (typeof useCallsites !== 'boolean') {
+      throw Errors.invalidTypeBool;
+    }
+
+    Config.#callsites = useCallsites;
+  }
+
+  /**
    * @param {ConfigParams} config
    * @return {Config}
    */
@@ -183,6 +219,7 @@ class Config {
     Config.logline = config.logline;
     Config.primitives = config.primitives;
     Config.json = config.json;
+    Config.callsites = config.callsites;
   }
 
   #_logline;
@@ -197,6 +234,8 @@ class Config {
 
   #_json;
 
+  #_callsites;
+
   /**
    * @param {ConfigParams} [config]
    */
@@ -207,6 +246,7 @@ class Config {
     logline = Config.logline,
     primitives = Config.primitives,
     json = Config.json,
+    callsites = Config.callsites,
   } = {}) {
     this.loglevel = loglevel;
     this.colorize = colorize;
@@ -214,6 +254,7 @@ class Config {
     this.logline = logline;
     this.primitives = primitives;
     this.json = json;
+    this.callsites = callsites;
   }
 
   /**
@@ -338,6 +379,30 @@ class Config {
     }
 
     this.#_primitives = primitives;
+  }
+
+  /**
+   * The default log level
+   * @returns {boolean}
+   */
+  get callsites() {
+    return this.#_callsites;
+  }
+
+  /**
+   * Use callsites
+   * @param {boolean} useCallsites
+   */
+  set callsites(useCallsites) {
+    if (useCallsites === undefined) {
+      return;
+    }
+
+    if (typeof useCallsites !== 'boolean') {
+      throw Errors.invalidTypeBool;
+    }
+
+    this.#_callsites = useCallsites;
   }
 }
 

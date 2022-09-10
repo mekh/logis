@@ -7,6 +7,7 @@
  * @property {function(*): *} [format]
  * @property {Logline} [logline]
  * @property {Primitives} [primitives]
+ * @property {boolean} [callsites]
  */
 const { Parser } = require('../formatter');
 const { Message } = require('./message');
@@ -133,12 +134,26 @@ class Logger {
   }
 
   /**
-   * Colorize setter
    * @param {boolean} value
    */
   set colorize(value) {
     this.#config.colorize = value;
     this.#colors.enabled = this.#config.colorize;
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  get callsites() {
+    return this.#config.callsites;
+  }
+
+  /**
+   * Colorize setter
+   * @param {boolean} value
+   */
+  set callsites(value) {
+    this.#config.callsites = value;
   }
 
   /**
@@ -176,6 +191,7 @@ class Logger {
     this.logline = config.logline;
     this.primitives = config.primitives;
     this.json = config.json;
+    this.callsites = config.callsites;
 
     return this;
   }
@@ -231,7 +247,7 @@ class Logger {
       data,
       level,
       category: this.category,
-      callsite: callsites(),
+      callsite: this.callsites ? callsites.getCallsite() : {},
     });
 
     return this.logline.build(message);

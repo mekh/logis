@@ -27,6 +27,10 @@ describe('# Config', () => {
     it('colorize - should be default', () => {
       expect(Config.colorize).toBe(false);
     });
+
+    it('callsites - should be default', () => {
+      expect(Config.callsites).toBe(true);
+    });
   });
 
   describe('# Validation', () => {
@@ -45,6 +49,10 @@ describe('# Config', () => {
     it('format - should throw', () => {
       expect(() => { Config.format = 'a'; }).toThrow(errors.invalidTypeFn);
     });
+
+    it('callsites - should throw', () => {
+      expect(() => { Config.callsites = 'a'; }).toThrow(errors.invalidTypeBool);
+    });
   });
 
   describe('# Environment', () => {
@@ -52,6 +60,7 @@ describe('# Config', () => {
       process.env.LOG_LEVEL = '';
       process.env.LOG_COLORS = '';
       process.env.LOG_JSON = '';
+      process.env.LOG_CALLSITES = '';
     });
 
     it('LOG_LEVEL - info', () => {
@@ -103,6 +112,16 @@ describe('# Config', () => {
       process.env.LOG_JSON = 'false';
       expect(Config.json).toBe(false);
     });
+
+    it('LOG_CALLSITES - should return true if LOG_CALLSITES is true', () => {
+      process.env.LOG_CALLSITES = 'true';
+      expect(Config.callsites).toBe(true);
+    });
+
+    it('LOG_CALLSITES - should return true if LOG_CALLSITES is false', () => {
+      process.env.LOG_CALLSITES = 'false';
+      expect(Config.callsites).toBe(false);
+    });
   });
 
   describe('# Custom settings', () => {
@@ -151,6 +170,7 @@ describe('# Config', () => {
         logline: new Logline().add(() => {}),
         primitives: new Primitives().add(() => true, () => 123),
         json: true,
+        callsites: false,
       };
 
       Config.setGlobalConfig(globalConfig);
@@ -163,6 +183,7 @@ describe('# Config', () => {
       expect(Config.logline).toEqual(globalConfig.logline);
       expect(Config.primitives).toEqual(globalConfig.primitives);
       expect(Config.json).toEqual(globalConfig.json);
+      expect(Config.callsites).toEqual(globalConfig.callsites);
     });
 
     it('should inherit global settings for instances', () => {
@@ -174,6 +195,7 @@ describe('# Config', () => {
       expect(config.logline).toEqual(globalConfig.logline);
       expect(config.primitives).toEqual(globalConfig.primitives);
       expect(config.json).toEqual(globalConfig.json);
+      expect(config.callsites).toEqual(globalConfig.callsites);
     });
 
     it('logline - should not set undefined', () => {
@@ -211,6 +233,12 @@ describe('# Config', () => {
 
       expect(Config.format).toBe(globalConfig.format);
     });
+
+    it('callsites - should not set undefined', () => {
+      Config.callsites = undefined;
+
+      expect(Config.callsites).toBe(globalConfig.callsites);
+    });
   });
 
   describe('# Instance', () => {
@@ -226,6 +254,7 @@ describe('# Config', () => {
       expect(config.json).toEqual(Config.json);
       expect(config.logline).toEqual(Config.logline);
       expect(config.primitives).toEqual(Config.primitives);
+      expect(config.callsites).toEqual(Config.callsites);
     });
 
     it('logline - should not set undefined', () => {
@@ -264,6 +293,12 @@ describe('# Config', () => {
       expect(config.format).toBe(Config.format);
     });
 
+    it('callsites - should not set undefined', () => {
+      config.callsites = undefined;
+
+      expect(config.callsites).toBe(Config.callsites);
+    });
+
     it('loglevel - should throw', () => {
       expect(() => { config.loglevel = 'a'; }).toThrow(TypeError);
     });
@@ -280,16 +315,44 @@ describe('# Config', () => {
       expect(() => { config.json = 'a'; }).toThrow(errors.invalidTypeBool);
     });
 
-    it('loglevel - should set', () => {
+    it('callsites - should throw', () => {
+      expect(() => { config.callsites = 'a'; }).toThrow(errors.invalidTypeBool);
+    });
+
+    it('loglevel - should set trace', () => {
       config.loglevel = 'trace';
 
       expect(config.loglevel).toBe('trace');
     });
 
-    it('colorize - should set', () => {
+    it('loglevel - should set debug', () => {
+      config.loglevel = 'debug';
+
+      expect(config.loglevel).toBe('debug');
+    });
+
+    it('colorize - should set true', () => {
       config.colorize = true;
 
       expect(config.colorize).toBe(true);
+    });
+
+    it('colorize - should set false', () => {
+      config.colorize = false;
+
+      expect(config.colorize).toBe(false);
+    });
+
+    it('callsites - should set true', () => {
+      config.callsites = true;
+
+      expect(config.callsites).toBe(true);
+    });
+
+    it('callsites - should set false', () => {
+      config.callsites = false;
+
+      expect(config.callsites).toBe(false);
     });
 
     it('format - should set', () => {

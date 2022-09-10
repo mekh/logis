@@ -225,6 +225,14 @@ declare namespace loggis {
          */
         set format(params: formatFn);
         /**
+         * Get current status
+         */
+        get callsites(): boolean;
+        /**
+         * Add callsites info (filename, function name, line number) to the message
+         */
+        set callsites(value: boolean);
+        /**
          * General logging function
          */
         log(level?: logLevelString | any, ...args: any[]): string;
@@ -285,6 +293,10 @@ declare namespace loggis {
          * Check /src/formatter/index.js for defaults
          */
         primitives?: Primitives;
+        /**
+         * Default is true
+         */
+        callsites?: boolean;
     }
 
     interface Formatters {
