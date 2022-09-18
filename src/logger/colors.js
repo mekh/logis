@@ -1,8 +1,6 @@
 const { Colors } = require('../utils/colors');
 
 class LoggerColors extends Colors {
-  #enabled = false;
-
   constructor(options) {
     super(options);
 
@@ -15,14 +13,6 @@ class LoggerColors extends Colors {
     }));
   }
 
-  get enabled() {
-    return !!this.#enabled;
-  }
-
-  set enabled(value) {
-    this.#enabled = !!value;
-  }
-
   /**
    * @param {object} input
    * @param {string} [input.level]
@@ -31,9 +21,7 @@ class LoggerColors extends Colors {
    */
   colorize({ level, text }) {
     const color = this.levelMap.get(level);
-    return this.enabled && color
-      ? super.colorize({ color, text })
-      : text;
+    return super.colorize({ color, text });
   }
 }
 

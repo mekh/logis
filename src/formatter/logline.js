@@ -51,7 +51,7 @@ class Logline {
    */
   buildJson(data) { // eslint-disable-line class-methods-use-this
     const json = data.reduce((acc, item, idx) => (
-      item && typeof item === 'object'
+      item && typeof item === 'object' && !Array.isArray(item)
         ? { ...acc, ...item }
         : { ...acc, [`[ ${idx} ]`]: item }
     ), {});

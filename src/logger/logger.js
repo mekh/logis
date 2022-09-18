@@ -12,6 +12,7 @@
 const { Parser } = require('../formatter');
 const { Message } = require('./message');
 const { Config } = require('../config');
+const { Stdout } = require('../transports/stdout');
 const callsites = require('../utils/callsite');
 
 /**
@@ -33,6 +34,7 @@ class Logger {
    * @param {LoggerStorage} storage
    * @param {Loglevel} loglevel
    * @param {Colors } colors
+   * @param {*} transport
    */
   constructor({
     category = 'default',
@@ -40,6 +42,7 @@ class Logger {
     storage,
     loglevel,
     colors,
+    transport = new Stdout(),
   }) {
     this.category = category;
 
@@ -47,8 +50,16 @@ class Logger {
     this.#config = config;
     this.#storage = storage;
     this.#colors = colors;
+    this.transport = transport;
 
     this.setupLoggers();
+  }
+
+  /**
+   * @param {Config} config
+   */
+  set config(config) {
+    this.#config = config;
   }
 
   /**
@@ -98,7 +109,7 @@ class Logger {
    * @returns {function|undefined}
    */
   get format() {
-    return this.#config.format || this.buildLog.bind(this);
+    return this.#config.format;
   }
 
   /**
@@ -138,7 +149,6 @@ class Logger {
    */
   set colorize(value) {
     this.#config.colorize = value;
-    this.#colors.enabled = this.#config.colorize;
   }
 
   /**
@@ -219,29 +229,36 @@ class Logger {
   /**
    * Print out a message
    * @param {string|any} [level]
-   * @param {any[]} args
+   * @param {any[]} data
    * @returns {string|undefined}
    * @private
    */
-  log(level, ...args) {
+  log(level, ...data) {
     const isValid = this.#loglevel.isValid(level);
     if (isValid && !this.shouldLog(level)) {
       return;
     }
 
     if (!isValid) {
-      args.unshift(level);
+      data.unshift(level);
     }
 
-    const text = this.format({ args, level, logger: this });
-    const output = this.#colors.colorize({ level, text });
+    const text = this.format
+      ? this.format({ args: data, level, logger: this })
+      : this.parse({ data, level });
 
-    console.log(output);
+    const output = this.colorizeOutput({ level, text });
+
+    this.transport.write(output);
     return text;
   }
 
-  buildLog({ args, level }) {
-    const data = Parser.parseArray(args, this.primitives);
+  parse({ data, level }) {
+    const parsed = Parser.parse(data, this.primitives);
+    return this.buildLog({ data: parsed, level });
+  }
+
+  buildLog({ data, level }) {
     const message = new Message({
       json: this.json,
       data,
@@ -251,6 +268,12 @@ class Logger {
     });
 
     return this.logline.build(message);
+  }
+
+  colorizeOutput({ level, text }) {
+    return this.colorize
+      ? this.#colors.colorize({ level, text })
+      : text;
   }
 }
 

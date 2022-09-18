@@ -61,7 +61,7 @@ describe('# Logline', () => {
     logline.json = true;
     const result = logline.build(data);
 
-    expect(result).toBe(JSON.stringify({ 0: data[0], 1: data[1], 2: data[2] }));
+    expect(result).toBe(JSON.stringify({ '[ 0 ]': data }));
   });
 
   it('should apply formatters', () => {

@@ -8,7 +8,7 @@ const { DEFAULT_STORAGE_LIMIT, DEFAULT_LOG_LEVELS } = require('../src/constants'
 
 const methods = DEFAULT_LOG_LEVELS;
 
-const print = jest.spyOn(console, 'log').mockImplementation();
+const print = jest.spyOn(logger.transport.writer, 'write').mockImplementation(() => {});
 jest.spyOn(callsite, 'getCallsite');
 
 describe('# Logger', () => {
