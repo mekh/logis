@@ -9,7 +9,6 @@
  * @property {Primitives} [primitives]
  * @property {boolean} [callsites]
  */
-const { Parser } = require('../formatter');
 const { Message } = require('./message');
 const { Config } = require('../config');
 const { Stdout } = require('../transports/stdout');
@@ -243,31 +242,22 @@ class Logger {
       data.unshift(level);
     }
 
-    const text = this.format
-      ? this.format({ args: data, level, logger: this })
-      : this.parse({ data, level });
+    const callsite = this.callsites ? callsites.getCallsite() : {};
+    const message = new Message({ data, category: this.category, level, callsite });
 
+    if (this.format) {
+      const text = this.format({ args: data, level, logger: this });
+      const output = this.colorizeOutput({ level, text });
+
+      this.transport.write(output);
+      return text;
+    }
+
+    const text = this.logline.build(message, this.primitives);
     const output = this.colorizeOutput({ level, text });
 
     this.transport.write(output);
     return text;
-  }
-
-  parse({ data, level }) {
-    const parsed = Parser.parse(data, this.primitives);
-    return this.buildLog({ data: parsed, level });
-  }
-
-  buildLog({ data, level }) {
-    const message = new Message({
-      json: this.json,
-      data,
-      level,
-      category: this.category,
-      callsite: this.callsites ? callsites.getCallsite() : {},
-    });
-
-    return this.logline.build(message);
   }
 
   colorizeOutput({ level, text }) {

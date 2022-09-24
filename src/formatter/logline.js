@@ -1,3 +1,5 @@
+const { Parser } = require('../parser');
+
 class Logline {
   /**
    * @param {object} [config]
@@ -20,12 +22,18 @@ class Logline {
 
   /**
    * @param {*} message
+   * @param primitives
    * @returns {string}
    */
-  build(message) {
+  build(message, primitives) {
+    // eslint-disable-next-line no-param-reassign
+    message.text = this.json
+      ? message.data
+      : Parser.toArrayString({ data: message.data, primitives }).join(' ');
+
     const data = this.formatters.reduce((acc, fn) => ([...acc, fn(message)]), []);
 
-    return this.json ? this.buildJson(data) : this.buildLine(data);
+    return this.json ? this.buildJson(data, primitives) : this.buildLine(data);
   }
 
   /**
@@ -47,16 +55,17 @@ class Logline {
 
   /**
    * @param {*[]} data
+   * @param {Primitives} primitives
    * @return {string}
    */
-  buildJson(data) { // eslint-disable-line class-methods-use-this
+  buildJson(data, primitives) { // eslint-disable-line class-methods-use-this
     const json = data.reduce((acc, item, idx) => (
       item && typeof item === 'object' && !Array.isArray(item)
         ? { ...acc, ...item }
         : { ...acc, [`[ ${idx} ]`]: item }
     ), {});
 
-    return JSON.stringify(json);
+    return Parser.toJsonString({ data: json, primitives });
   }
 }
 

@@ -10,14 +10,16 @@ const getCallsite = () => {
   Error.stackTraceLimit = 4;
 
   // stack items: 0 - error, 1 - this file, 2 - loggis, 3 - caller
-  const caller = new Error().stack[3];
+  const { stack } = new Error();
+  const callerIdx = 2;
+
   Error.prepareStackTrace = bkpFn;
   Error.stackTraceLimit = bkpLimit;
 
   return {
-    fileName: caller.getFileName(),
-    functionName: caller.getFunctionName(),
-    lineNumber: caller.getLineNumber(),
+    fileName: stack[callerIdx].getFileName(),
+    functionName: stack[callerIdx].getFunctionName(),
+    lineNumber: stack[callerIdx].getLineNumber(),
   };
 };
 

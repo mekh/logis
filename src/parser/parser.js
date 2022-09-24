@@ -1,31 +1,50 @@
-const References = require('./references');
+const { References } = require('./references');
 const { Primitives } = require('./primitives');
+const { JsonStr } = require('./jsonStr');
 
 class Parser {
   /**
-   * @param {*[]} arr
-   * @param {Primitives} primitives
-   * @returns {*[]}
+   * @param {object} input
+   * @param {*} input.data
+   * @param {Primitives} [input.primitives]
+   * @returns {string}
    */
-  static parse(arr, primitives) {
-    return new Parser(primitives).parseMessage(arr);
+  static toJsonString({ data, primitives }) {
+    const parser = new Parser({ primitives });
+    parser.parse(data);
+
+    return parser.str;
   }
 
   /**
-   * @param {Primitives} primitives
+   * @param {object} input
+   * @param {*} input.data
+   * @param {Primitives} [input.primitives]
+   * @returns {string[]}
    */
-  constructor(primitives = new Primitives()) {
+  static toArrayString({ data, primitives }) {
+    return data.map(item => (
+      Primitives.isPrimitive(item)
+        ? JsonStr.stringify(item)
+        : Parser.toJsonString({ data: item, primitives })
+    ));
+  }
+
+  /**
+   * @param {Primitives} [primitives]
+   */
+  constructor({ primitives }) {
     this.primitives = primitives;
 
     this.references = new References();
-    this.json = '';
+    this.json = new JsonStr();
   }
 
   /**
    * @return {string}
    */
-  get delimiter() {
-    return !this.json || this.json.endsWith('{') || this.json.endsWith('[') ? '' : ',';
+  get str() {
+    return this.json.str;
   }
 
   /**
@@ -34,18 +53,17 @@ class Parser {
    * @param {string} [key]
    * @returns {*}
    */
-  parseMessage(message, path, key) {
+  parse(message, path, key) {
     const ref = this.references.get(message);
     if (ref) {
-      this.appendMessage(this.parsePrimitive(ref), key);
+      this.json.append(ref, key);
 
       return ref;
     }
 
-    const data = this.primitives.apply(message);
-    if (this.primitives.isPrimitive(data)) {
-      const primitive = this.parsePrimitive(data);
-      this.appendMessage(primitive, key);
+    const data = this.primitives ? this.primitives.apply(message) : message;
+    if (Primitives.isPrimitive(data)) {
+      this.json.append(data, key);
 
       return data;
     }
@@ -76,11 +94,11 @@ class Parser {
    * @private
    */
   handleArray(data, key) {
-    this.startObject({ key, isArray: true });
+    this.json.startObject({ key, isArray: true });
     const { path } = this.references;
 
-    const arr = data.map((item, idx) => this.parseMessage(item, `${path}[${idx}]`));
-    this.finishObject({ isArray: true });
+    const arr = data.map((item, idx) => this.parse(item, `${path}[${idx}]`));
+    this.json.finishObject({ isArray: true });
 
     return arr;
   }
@@ -92,70 +110,17 @@ class Parser {
    * @private
    */
   handleObject(data, key) {
-    this.startObject({ key, isArray: false });
+    this.json.startObject({ key, isArray: false });
     const { path } = this.references;
 
     const obj = Object.entries(data).reduce(
       (acc, [k, v]) => (
-        { ...acc, [k]: this.parseMessage(v, [path, k].filter(Boolean).join('.'), k) }),
+        { ...acc, [k]: this.parse(v, [path, k].filter(Boolean).join('.'), k) }),
       {},
     );
 
-    this.finishObject({ isArray: false });
+    this.json.finishObject({ isArray: false });
     return obj;
-  }
-
-  /**
-   * @param {*} value
-   * @return {string|number|boolean|null}
-   */
-  parsePrimitive(value) {
-    if (!this.primitives.isPrimitive(value)) {
-      throw new TypeError('Value is not a primitive');
-    }
-
-    const handler = {
-      string: (data) => `"${data.replace(/[\\"]/g, '\\$&')}"`,
-      symbol: (data) => `"${data.toString()}"`,
-      bigint: (data) => `"${data.toString()}"`,
-      number: (data) => (Number.isFinite(data) ? data : `"${data}"`),
-      boolean: (data) => data,
-      object: (data) => data,
-      undefined: () => null,
-      function: (data) => {
-        const type = Function.prototype.toString.call(data).startsWith('class') ? 'Class' : 'Function';
-        return `"<${type} ${data.name || 'anonymous'}>"`;
-      },
-    }[typeof value];
-
-    return handler(value);
-  }
-
-  /**
-   * @param {string|number} data
-   * @param key
-   */
-  appendMessage(data, key) {
-    this.json += key ? `${this.delimiter}"${key}":${data}` : `${this.delimiter}${data}`;
-  }
-
-  /**
-   * @param {object} data
-   * @param {string} [key]
-   * @param {boolean} isArray
-   */
-  startObject({ key, isArray }) {
-    const sym = isArray ? '[' : '{';
-    const prefix = key ? `"${key}":` : '';
-
-    this.json += `${this.delimiter}${prefix}${sym}`;
-  }
-
-  /**
-   * @param {boolean} isArray
-   */
-  finishObject({ isArray }) {
-    this.json += isArray ? ']' : '}';
   }
 }
 

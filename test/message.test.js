@@ -3,7 +3,6 @@ const { Message } = require('../src/logger/message');
 describe('# Message', () => {
   it('should have properties', () => {
     const settings = {
-      json: false,
       data: [],
       level: 'level',
       category: 'category',
@@ -24,29 +23,6 @@ describe('# Message', () => {
     expect(message.fileName).toBe(settings.callsite.fileName);
     expect(message.functionName).toBe(settings.callsite.functionName);
     expect(message.lineNumber).toBe(settings.callsite.lineNumber);
-  });
-
-  it('should return string', () => {
-    const settings = {
-      json: false,
-      data: [1, 'a', { key: 'value' }],
-      callsite: {},
-    };
-
-    const message = new Message(settings);
-
-    expect(message.text).toBe('1 a {"key":"value"}');
-  });
-
-  it('should return array', () => {
-    const settings = {
-      json: true,
-      data: [1, 'a'],
-      callsite: {},
-    };
-
-    const message = new Message(settings);
-
-    expect(message.text).toBe(settings.data);
+    expect(message.text).toBe('');
   });
 });

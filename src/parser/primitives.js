@@ -11,6 +11,10 @@ class Primitives {
     'function',
   ];
 
+  static isPrimitive(data) {
+    return data === null || Primitives.types.includes(typeof data);
+  }
+
   /**
    * @param {string} type - one of 'number', 'string', 'object', 'undefined', 'boolean', 'symbol', 'function'
    * @returns {function(*): boolean}
@@ -32,6 +36,9 @@ class Primitives {
      * @type {Primitive[]}
      */
     this.primitives = [];
+    /**
+     * @type {string[]}
+     */
     this.types = Primitives.types;
   }
 
@@ -63,14 +70,6 @@ class Primitives {
     const primitives = this.primitives.filter(item => item.is(data));
 
     return primitives.reduce((acc, primitive) => primitive.format(acc), data);
-  }
-
-  /**
-   * @param {*} data
-   * @returns {boolean}
-   */
-  isPrimitive(data) {
-    return data === null || this.types.includes(typeof data);
   }
 }
 

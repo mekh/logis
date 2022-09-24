@@ -29,7 +29,6 @@ The default settings are:
 - colorize: false
 - [logline](#logline): [ISO timestamp] [level] [process.pid] [category] [filename||functionName:lineNumber] message
 - [primitives](#primitives-default-configuration)
-  - Function => <Function ${function.name || 'anonymous'}>
   - Date instance => Date.toISOString()
   - Promise instance => '<Promise>'
   - Buffer instance - Buffer.toString()

@@ -18,4 +18,6 @@ class References {
   }
 }
 
-module.exports = References;
+module.exports = {
+  References,
+};
